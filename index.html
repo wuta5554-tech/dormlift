@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DormLift - Student Moving Help</title>
+  <style>
+    /* 全局样式重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    /* 页面基础样式 */
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* 导航栏 */
+    .navbar {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .navbar-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    /* 选项卡导航 */
+    .tab-links {
+      display: flex;
+      background-color: #34495e;
+      padding: 0 2rem;
+    }
+
+    .tab-link {
+      color: white;
+      text-decoration: none;
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .tab-link:hover, .tab-link.active {
+      background-color: #3498db;
+    }
+
+    /* 容器 */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      display: inline-block;
+      background: #3498db;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+    }
+
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+
+    /* 表单样式 */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    /* 任务列表样式 */
+    .task-list {
+      list-style: none;
+    }
+
+    .task-item {
+      padding: 1.5rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-info h3 {
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+
+    .task-meta {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+    }
+
+    /* 首页hero区域 */
+    .hero {
+      text-align: center;
+      padding: 4rem 0;
+      margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #7f8c8d;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+    }
+
+    /* 特性卡片 */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    /* 选项卡内容（默认隐藏） */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* 响应式适配（手机端） */
+    @media (max-width: 768px) {
+      .features {
+        grid-template-columns: 1fr;
+      }
+      
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .tab-links {
+        flex-wrap: wrap;
+        padding: 0;
+      }
+      
+      .tab-link {
+        flex: 1;
+        text-align: center;
+        padding: 1rem 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-logo">DormLift</div>
+  </nav>
+
+  <!-- 选项卡切换导航 -->
+  <div class="tab-links">
+    <div class="tab-link active" onclick="openTab('home')">Home</div>
+    <div class="tab-link" onclick="openTab('post-request')">Post a Request</div>
+    <div class="tab-link" onclick="openTab('helper-list')">Find Tasks</div>
+    <div class="tab-link" onclick="openTab('login')">Login</div>
+  </div>
+
+  <!-- 首页内容 -->
+  <div id="home" class="tab-content active">
+    <div class="container">
+      <!-- Hero区域 -->
+      <section class="hero card">
+        <h1>Affordable Moving Help for University Students</h1>
+        <p>Connect with fellow students to get help moving your belongings into or out of dorms - cheap, reliable, and community-focused.</p>
+        <a href="javascript:openTab('post-request')" class="btn">Post a Moving Request</a>
+        <a href="javascript:openTab('helper-list')" class="btn btn-secondary" style="margin-left: 1rem;">Become a Helper</a>
+      </section>
+
+      <!-- 核心特性 -->
+      <section class="features">
+        <div class="feature-card card">
+          <h3>Low Cost</h3>
+          <p>Cheaper than professional movers - pay small amounts or offer campus credits to fellow students.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Flexible</h3>
+          <p>Schedule moves around your class timetable - no rigid time slots.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Trusted</h3>
+          <p>Student-to-student network with ratings and basic checks for peace of mind.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 发布搬家需求内容 -->
+  <div id="post-request" class="tab-content">
+    <div class="container">
+      <div class="card">
+        <h2>Post a Moving Request</h2>
+        <form id="movingRequestForm">
+          <div class="form-group">
+            <label for="moveDate">Moving Date & Time</label>
+            <input type="datetime-local" id="moveDate" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="location">From / To Location (Dorm Address)</label>
+            <input type="text" id="location" placeholder="e.g. Hall A to Hall C, University of Auckland" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="helpersNeeded">Number of Helpers Needed</label>
+            <select id="helpersNeeded" required>
+              <option value="">Select number</option>
+              <option value="1">1 Person</option>
+              <option value="2">2 People</option>
+              <option value="3">3+ People</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="items">Items to Move (Describe)</label>
+            <textarea id="items" rows="4" placeholder="e.g. 2 boxes, 1 small bed, 1 monitor, kitchen gear" required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="compensation">Compensation (NZ$ or Campus Credits)</label>
+            <input type="text" id="compensation" placeholder="e.g. $20 per person or 5 campus credits" required>
+          </div>
+          
+          <button type="submit" class="btn">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 任务列表内容 -->
+  <div id="helper-list" class="tab-content">
+    <div class="container">
+      <div class="card">
+        <h2>Available Moving Tasks</h2>
+        <p style="margin-bottom: 2rem; color: #7f8c8d;">Filter tasks by date, location or compensation</p>
+        
+        <ul class="task-list">
+          <!-- 任务1 -->
+          <li class="task-item">
+            <div class="task-info">
+              <h3>Move from Hall B to Hall D</h3>
+              <div class="task-meta">Date: 25/03/2026, 14:00 | Helpers needed: 2 | Compensation: $15 per person</div>
+              <div class="task-meta">Items: 3 boxes, 1 desk, 1 chair</div>
+            </div>
+            <a href="#" class="btn">Accept Task</a>
+          </li>
+          
+          <!-- 任务2 -->
+          <li class="task-item">
+            <div class="task-info">
+              <h3>Move into Freshman Hall</h3>
+              <div class="task-meta">Date: 28/03/2026, 10:00 | Helpers needed: 1 | Compensation: 3 campus credits</div>
+              <div class="task-meta">Items: 2 suitcases, small kitchen gear</div>
+            </div>
+            <a href="#" class="btn">Accept Task</a>
+          </li>
+          
+          <!-- 任务3 -->
+          <li class="task-item">
+            <div class="task-info">
+              <h3>Move out of Hall A (end of semester)</h3>
+              <div class="task-meta">Date: 05/04/2026, 11:30 | Helpers needed: 3 | Compensation: $20 per person</div>
+              <div class="task-meta">Items: Bed frame, 4 boxes, monitor, mini fridge</div>
+            </div>
+            <a href="#" class="btn">Accept Task</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登录页面内容 -->
+  <div id="login" class="tab-content">
+    <div class="container">
+      <div class="card" style="max-width: 500px; margin: 2rem auto;">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Student Login</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="studentId">University ID</label>
+            <input type="text" id="studentId" placeholder="e.g. 12345678" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Your password" required>
+          </div>
+          
+          <button type="submit" class="btn" style="width: 100%;">Login</button>
+          
+          <p style="margin-top: 1.5rem; text-align: center;">
+            Don't have an account? <a href="#" style="color: #3498db;">Register</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 选项卡切换功能
+    function openTab(tabName) {
+      // 隐藏所有内容
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+      }
+      
+      // 取消所有选项卡激活状态
+      const tabLinks = document.getElementsByClassName("tab-link");
+      for (let i = 0; i < tabLinks.length; i++) {
+        tabLinks[i].classList.remove("active");
+      }
+      
+      // 显示选中的内容，激活选中的选项卡
+      document.getElementById(tabName).classList.add("active");
+      event.currentTarget.classList.add("active");
+    }
+
+    // 表单提交模拟
+    document.getElementById('movingRequestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Your moving request has been posted successfully! Helpers will contact you soon.');
+      this.reset();
+    });
+
+    // 登录模拟
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Login successful! Welcome to DormLift.');
+      openTab('home'); // 登录后切回首页
+    });
+  </script>
+</body>
+</html>
