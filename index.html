@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DormLift - Affordable Student Moving</title>
+    <title>DormLift - 学生互助搬家平台</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -11,86 +11,90 @@
 
     <style>
         :root { --primary: #3498db; --bg: #f4f7f9; --text: #2c3e50; --card: #fff; --border: #e1e8ed; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
-        body { margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        body { margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
 
         /* 导航栏 */
-        nav { background: var(--card); padding: 15px 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
+        nav { background: var(--card); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 24px; font-weight: 800; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
         .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .nav-links a:hover { color: var(--primary); }
         .active-link { color: var(--primary) !important; border-bottom: 2px solid var(--primary); }
 
-        /* 容器与页面切换 */
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
+        /* 页面切换 */
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 截图风格：Landing Page --- */
-        .hero { background: white; padding: 80px 40px; text-align: center; border-radius: 24px; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-        .hero h1 { font-size: 42px; color: #2c3e50; margin-bottom: 20px; letter-spacing: -1px; }
-        .hero p { color: #7f8c8d; font-size: 18px; max-width: 750px; margin: 0 auto 35px; }
-        
-        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
-        .feature-card { background: white; padding: 40px 25px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: 0.3s; }
-        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .feature-card i { font-size: 32px; margin-bottom: 20px; display: block; }
-        .feature-card h3 { margin-bottom: 15px; font-size: 20px; }
-        .feature-card p { font-size: 14px; color: #657786; }
+        /* 截图风格 Hero Section */
+        .hero { background: white; padding: 60px 20px; text-align: center; border-radius: 24px; margin-bottom: 30px; border: 1px solid var(--border); }
+        .hero h1 { font-size: 36px; color: #2c3e50; margin-bottom: 15px; }
+        .hero p { color: #7f8c8d; font-size: 17px; max-width: 650px; margin: 0 auto 30px; }
 
-        /* --- 列表与卡片 --- */
-        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        .pro-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); position: relative; transition: 0.3s; }
-        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: #f8f9fa; }
-        
-        /* --- 注册与登录页面 --- */
-        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: white; padding: 50px; border-radius: 24px; border: 1px solid var(--border); width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: center; }
-        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-        .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; font-weight: 700; color: #657786; }
+        /* 优势卡片 */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .feature-card { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: 0.3s; }
+        .feature-card i { font-size: 28px; margin-bottom: 15px; display: block; }
+
+        /* 认证页面 (登录/注册) */
+        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0; }
+        .auth-box { background: white; padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); }
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; text-align: center; font-weight: 700; color: #657786; }
         .auth-tabs .active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* --- 通用组件 --- */
-        .input-pro { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; font-size: 15px; transition: 0.2s; }
-        .input-pro:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
-        .btn { padding: 14px 25px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        /* 表单与按钮 */
+        .input-pro { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; }
+        .btn { padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: #95a5a6; color: white; }
         
-        /* 地图 */
-        #map { height: 350px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
-
-        /* 加载遮罩 */
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        #map { height: 300px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--primary)"></i><p style="margin-top:20px; font-weight:700;">Uploading to Cloudinary...</p></div>
+    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i><p>处理中...</p></div>
 
     <div id="auth-page">
         <div class="auth-box">
-            <div class="logo" style="justify-content:center; margin-bottom:30px;"><i class="fa-solid fa-truck-ramp-box"></i> DormLift</div>
+            <div class="logo" style="justify-content:center; margin-bottom:20px;"><i class="fa-solid fa-truck-ramp-box"></i> DormLift</div>
             <div class="auth-tabs">
-                <div id="tab-login" class="active" onclick="toggleAuth('login')">Login</div>
-                <div id="tab-reg" onclick="toggleAuth('reg')">Register</div>
+                <div id="tab-login" class="active" onclick="toggleAuth('login')">登录</div>
+                <div id="tab-reg" onclick="toggleAuth('reg')">注册</div>
             </div>
             
             <div id="form-login">
-                <input type="text" id="l-id" placeholder="Student ID" class="input-pro">
-                <input type="password" id="l-pw" placeholder="Password" class="input-pro">
-                <button class="btn btn-primary" style="width:100%" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+                <input type="text" id="l-id" placeholder="学生 ID" class="input-pro">
+                <input type="password" id="l-pw" placeholder="密码" class="input-pro">
+                <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">登录平台</button>
             </div>
 
-            <div id="form-reg" style="display:none">
-                <input type="text" id="r-id" placeholder="Student ID (8 digits)" class="input-pro">
-                <input type="email" id="r-email" placeholder="Uni Email (.ac.nz)" class="input-pro">
-                <input type="text" id="r-anon" placeholder="Anonymous Nickname" class="input-pro">
-                <input type="password" id="r-pw" placeholder="Password" class="input-pro">
-                <button class="btn btn-primary" style="width:100%" onclick="handleRegister()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+            <div id="form-reg" style="display:none; text-align: left;">
+                <label style="font-size:11px; color:#657786; font-weight:700;">基本信息</label>
+                <input type="text" id="r-id" placeholder="学生 ID (8位数字)" class="input-pro">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                    <input type="text" id="r-first" placeholder="姓 (First Name)" class="input-pro">
+                    <input type="text" id="r-given" placeholder="名 (Given Name)" class="input-pro">
+                </div>
+
+                <label style="font-size:11px; color:#657786; font-weight:700;">联络方式</label>
+                <input type="text" id="r-phone" placeholder="电话号码 (如 021...)" class="input-pro">
+                <div style="display:flex; gap:10px;">
+                    <input type="email" id="r-email" placeholder="校友邮箱 (.ac.nz)" class="input-pro" style="flex:2">
+                    <button class="btn btn-secondary" style="flex:1; font-size:11px;" onclick="sendCode()">发送验证码</button>
+                </div>
+                <input type="text" id="r-code" placeholder="输入验证码 (演示用: 1234)" class="input-pro">
+
+                <label style="font-size:11px; color:#657786; font-weight:700;">安全设置</label>
+                <input type="text" id="r-anon" placeholder="公开昵称" class="input-pro">
+                <input type="password" id="r-pw" placeholder="创建密码" class="input-pro">
+                <input type="password" id="r-pw-confirm" placeholder="确认密码" class="input-pro">
+                
+                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="handleRegister()">创建账户</button>
             </div>
-            <p style="font-size:12px; color:#aab8c2; margin-top:20px;">Built for New Zealand University Community</p>
         </div>
     </div>
 
@@ -100,82 +104,69 @@
     </nav>
 
     <div class="container">
-        
         <div id="home" class="page">
             <div class="hero">
-                <h1>Affordable Moving Help for University Students</h1>
-                <p>Connect with fellow students to get help moving your belongings into or out of dorms - cheap, reliable, and community-focused.</p>
-                <div style="display:flex; justify-content:center; gap:20px;">
-                    <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-paper-plane"></i> Post a Moving Request</button>
-                    <button class="btn btn-secondary" onclick="window.scrollTo({top: 800, behavior:'smooth'})">Become a Helper</button>
+                <h1>学生专属的平价搬家互助平台</h1>
+                <p>连接校友，让宿舍搬迁变得简单、便宜且充满社区温情。</p>
+                <div style="display:flex; justify-content:center; gap:15px;">
+                    <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-plus"></i> 发布需求</button>
+                    <button class="btn btn-secondary" onclick="window.scrollTo(0, 800)">寻找任务</button>
                 </div>
             </div>
 
             <div class="features-grid">
                 <div class="feature-card">
-                    <i class="fa-solid fa-hand-holding-dollar" style="color:#27ae60"></i>
-                    <h3>Low Cost</h3>
-                    <p>Cheaper than professional movers - pay small amounts or offer campus credits to fellow students.</p>
+                    <i class="fa-solid fa-hand-holding-dollar" style="color:var(--success)"></i>
+                    <h3>低成本</h3>
+                    <p>比专业搬家公司便宜得多，校友互助仅需少量报酬。</p>
                 </div>
                 <div class="feature-card">
-                    <i class="fa-solid fa-calendar-check" style="color:#3498db"></i>
-                    <h3>Flexible</h3>
-                    <p>Schedule moves around your class timetable - no rigid time slots.</p>
+                    <i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i>
+                    <h3>更灵活</h3>
+                    <p>根据你的课表安排时间，无需忍受僵化的预约窗口。</p>
                 </div>
                 <div class="feature-card">
-                    <i class="fa-solid fa-shield-halved" style="color:#f39c12"></i>
-                    <h3>Trusted</h3>
-                    <p>Student-to-student network with ratings and basic checks for peace of mind.</p>
+                    <i class="fa-solid fa-shield-halved" style="color:var(--warning)"></i>
+                    <h3>更可信</h3>
+                    <p>基于校友网络的评分系统，实名认证更安心。</p>
                 </div>
             </div>
 
-            <h2 style="font-size: 24px; margin-bottom: 25px;"><i class="fa-solid fa-store" style="font-size:18px; color:var(--primary)"></i> Active Marketplace</h2>
-            <div id="hall" class="market-grid"></div>
+            <h2 style="margin-bottom: 20px;">任务大厅</h2>
+            <div id="hall" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
         </div>
 
         <div id="dashboard" class="page">
-            <h2><i class="fa-solid fa-layer-group"></i> My Job Workflow</h2>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-                <div id="col-pending" style="background:#eee; padding:15px; border-radius:12px; min-height:400px;"><h4>Pending</h4></div>
-                <div id="col-progress" style="background:#fff3e0; padding:15px; border-radius:12px; min-height:400px;"><h4>Moving</h4></div>
-                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>History</h4></div>
-            </div>
+            <h2>我的任务状态</h2>
+            <div id="dash-list"></div>
         </div>
 
         <div id="post-task" class="page">
-            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); max-width:800px; margin:0 auto;">
-                <h3><i class="fa-solid fa-circle-plus"></i> Post New Request</h3>
+            <div style="background:white; padding:30px; border-radius:24px; border:1px solid var(--border);">
+                <h3>发布搬家请求</h3>
                 <div id="map"></div>
-                <form id="v8-post-form">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-                        <input type="text" id="p_from" placeholder="Pickup (Click Map)" class="input-pro" readonly>
-                        <input type="text" id="p_to" placeholder="Destination (Click Map)" class="input-pro" readonly>
+                <form id="post-form">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                        <input type="text" id="p_from" placeholder="起点 (点击地图获取)" class="input-pro" readonly>
+                        <input type="text" id="p_to" placeholder="终点 (点击地图获取)" class="input-pro" readonly>
                     </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-                        <input type="datetime-local" id="p_dt" class="input-pro">
-                        <input type="text" id="p_reward" placeholder="Reward (e.g. $50)" class="input-pro">
-                    </div>
-                    <textarea id="p_items" placeholder="List items (e.g. 5 boxes, 1 desk)..." class="input-pro" rows="3"></textarea>
-                    <label style="display:block; background:#f8f9fa; border:2px dashed #ccc; padding:20px; text-align:center; border-radius:12px; margin-bottom:20px; cursor:pointer;">
-                        <i class="fa-solid fa-camera"></i> <span id="file-name">Attach Photo</span>
-                        <input type="file" id="p_file" accept="image/*" style="display:none" onchange="document.getElementById('file-name').innerText=this.files[0].name">
-                    </label>
-                    <button type="submit" class="btn btn-primary" style="width:100%">Publish Request</button>
+                    <input type="datetime-local" id="p_dt" class="input-pro">
+                    <input type="text" id="p_reward" placeholder="报酬金额 (例如: $50)" class="input-pro">
+                    <textarea id="p_items" placeholder="搬运物品清单..." class="input-pro" rows="3"></textarea>
+                    <input type="file" id="p_file" class="input-pro">
+                    <button type="submit" class="btn btn-primary" style="width:100%">确认发布</button>
                 </form>
             </div>
         </div>
 
         <div id="profile" class="page">
-            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); display:flex; gap:40px; align-items:center;">
-                <div id="p-avatar" style="width:120px; height:120px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:50px; font-weight:800;">?</div>
-                <div>
-                    <h2 id="p-anon" style="margin:0;">-</h2>
-                    <p id="p-rating" style="color:var(--warning); font-weight:700; font-size:20px;">★ 5.0</p>
-                    <div id="p-info" style="font-size:14px; color:#657786;"></div>
-                </div>
+            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); text-align: center;">
+                <div id="p-avatar" style="width:80px; height:80px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 20px;">?</div>
+                <h2 id="p-anon">-</h2>
+                <div id="p-info" style="color:#657786;"></div>
+                <button class="btn btn-secondary" style="margin-top:20px;" onclick="logout()">退出登录</button>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -183,7 +174,6 @@
         let user = JSON.parse(localStorage.getItem('user')) || null;
         let map, markers = [];
 
-        // Auth 切换
         function toggleAuth(type) {
             const isLogin = type === 'login';
             document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
@@ -192,31 +182,56 @@
             document.getElementById('tab-reg').className = isLogin ? '' : 'active';
         }
 
-        // 导航控制
+        function sendCode() {
+            const email = document.getElementById('r-email').value;
+            if(!email.endsWith('.ac.nz')) return alert("请使用 NZ 校友邮箱！");
+            alert("验证码已发送至 " + email + "\n(测试码: 1234)");
+        }
+
         function navigate(p) {
             if(!user) return;
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
             document.getElementById(p).classList.add('active');
             updateNav();
             if(p==='home') loadHall();
-            if(p==='dashboard') loadDash();
             if(p==='profile') loadProfile();
             if(p==='post-task') setTimeout(initMap, 200);
         }
 
         function updateNav() {
-            const menu = document.getElementById('nav-menu');
-            menu.innerHTML = `
-                <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-store"></i> Market</a>
-                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-layer-group"></i> Jobs</a>
-                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-circle-plus"></i> Post</a>
-                <a onclick="navigate('profile')" class="${pAct('profile')}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a onclick="logout()" style="color:var(--danger)"><i class="fa-solid fa-power-off"></i></a>
+            document.getElementById('nav-menu').innerHTML = `
+                <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-store"></i> 大厅</a>
+                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-tasks"></i> 任务</a>
+                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-plus-circle"></i> 发布</a>
+                <a onclick="navigate('profile')" class="${pAct('profile')}"><i class="fa-solid fa-user-circle"></i> 个人</a>
             `;
         }
         const pAct = (id) => document.getElementById(id).classList.contains('active') ? 'active-link' : '';
 
-        // --- 核心逻辑 ---
+        // 注册逻辑
+        async function handleRegister() {
+            const student_id = document.getElementById('r-id').value;
+            const email = document.getElementById('r-email').value;
+            const first_name = document.getElementById('r-first').value;
+            const given_name = document.getElementById('r-given').value;
+            const phone = document.getElementById('r-phone').value;
+            const anonymous_name = document.getElementById('r-anon').value;
+            const code = document.getElementById('r-code').value;
+            const pw = document.getElementById('r-pw').value;
+            const pw2 = document.getElementById('r-pw-confirm').value;
+
+            if(code !== "1234") return alert("验证码错误！");
+            if(pw !== pw2) return alert("密码不一致！");
+
+            const r = await fetch(`${API}/auth/register`, {
+                method:'POST', 
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({student_id, email, first_name, given_name, phone, anonymous_name, password:pw, school_name:"University of Auckland"})
+            });
+            const res = await r.json();
+            if(res.success) { alert("注册成功，请登录！"); toggleAuth('login'); }
+            else alert(res.message);
+        }
 
         async function handleLogin() {
             const student_id = document.getElementById('l-id').value;
@@ -228,21 +243,7 @@
                 localStorage.setItem('user', JSON.stringify(user));
                 document.getElementById('auth-page').style.display = 'none';
                 navigate('home');
-            } else alert("Invalid Login");
-        }
-
-        async function handleRegister() {
-            const data = {
-                student_id: document.getElementById('r-id').value,
-                email: document.getElementById('r-email').value,
-                anonymous_name: document.getElementById('r-anon').value,
-                password: document.getElementById('r-pw').value,
-                school_name: "University of Auckland"
-            };
-            const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
-            const res = await r.json();
-            if(res.success) { alert("Success! Please Login."); toggleAuth('login'); }
-            else alert(res.message);
+            } else alert("账号或密码错误");
         }
 
         function initMap() {
@@ -251,7 +252,7 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             map.on('click', e => {
                 if(markers.length >= 2) { markers.forEach(m=>map.removeLayer(m)); markers=[]; }
-                let m = L.marker(e.latlng).addTo(map); markers.push(m);
+                markers.push(L.marker(e.latlng).addTo(map));
                 const loc = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
                 if(markers.length===1) document.getElementById('p_from').value = loc;
                 else document.getElementById('p_to').value = loc;
@@ -262,45 +263,19 @@
             const r = await fetch(`${API}/task/all`);
             const d = await r.json();
             document.getElementById('hall').innerHTML = d.list.map(t => `
-                <div class="pro-card">
-                    ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : ''}
+                <div style="background:white; padding:20px; border-radius:16px; border:1px solid var(--border);">
                     <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span style="color:var(--warning)">★${t.rating_avg}</span></div>
-                    <p style="font-size:13px; color:#657786;">${t.from_addr} → ${t.to_addr}</p>
-                    <button class="btn btn-primary" style="width:100%; font-size:12px;" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>
+                    <p style="font-size:13px; color:#657786;">从 ${t.from_addr} 到 ${t.to_addr}</p>
+                    <button class="btn btn-primary" style="width:100%;" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">接受任务</button>
                 </div>
             `).join('');
         }
 
-        async function workflow(task_id, status, helper_id=null) {
-            await fetch(`${API}/task/workflow`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({task_id, status, helper_id})});
-            navigate('dashboard');
-        }
-
-        document.getElementById('v8-post-form').onsubmit = async e => {
-            e.preventDefault();
-            document.getElementById('loader').style.display='flex';
-            const fd = new FormData();
-            fd.append('publisher_id', user.student_id);
-            fd.append('move_date', document.getElementById('p_dt').value.split('T')[0]);
-            fd.append('move_time', document.getElementById('p_dt').value.split('T')[1]);
-            fd.append('from_addr', document.getElementById('p_from').value);
-            fd.append('to_addr', document.getElementById('p_to').value);
-            fd.append('reward', document.getElementById('p_reward').value);
-            fd.append('items_desc', document.getElementById('p_items').value);
-            if(document.getElementById('p_file').files[0]) fd.append('task_image', document.getElementById('p_file').files[0]);
-            
-            await fetch(`${API}/task/create`, {method:'POST', body:fd});
-            document.getElementById('loader').style.display='none';
-            navigate('home');
-        };
-
         async function loadProfile() {
             const r = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
             const d = await r.json();
-            document.getElementById('p-avatar').innerText = d.user.anonymous_name[0];
             document.getElementById('p-anon').innerText = d.user.anonymous_name;
-            document.getElementById('p-rating').innerText = `★ ${d.user.rating_avg}`;
-            document.getElementById('p-info').innerHTML = `<p><i class="fa-solid fa-id-card"></i> ID: ${d.user.student_id}</p><p><i class="fa-solid fa-envelope"></i> ${d.user.email}</p>`;
+            document.getElementById('p-info').innerHTML = `<p>${d.user.email}</p><p>${d.user.phone}</p><p>评分: ${d.user.rating_avg}</p>`;
         }
 
         function logout() { localStorage.clear(); location.reload(); }
