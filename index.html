@@ -20,21 +20,19 @@
         .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .active-link { color: var(--primary) !important; border-bottom: 2px solid var(--primary); }
 
-        /* Container & Page Management */
+        /* Page Management */
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Hero Style (Based on your Screenshot) */
+        /* Hero Style */
         .hero { background: white; padding: 60px 20px; text-align: center; border-radius: 24px; margin-bottom: 30px; border: 1px solid var(--border); }
         .hero h1 { font-size: 38px; color: #2c3e50; margin-bottom: 15px; letter-spacing: -1px; }
         .hero p { color: #7f8c8d; font-size: 17px; max-width: 650px; margin: 0 auto 30px; line-height: 1.6; }
         
-        /* Features Grid */
         .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
         .feature-card { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: 0.3s; }
-        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .feature-card i { font-size: 32px; margin-bottom: 15px; display: block; }
 
         /* Auth Layer */
@@ -44,28 +42,23 @@
         .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; text-align: center; font-weight: 700; color: #657786; }
         .auth-tabs .active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* Inputs & Buttons */
-        .input-pro { width: 100%; padding: 13px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; transition: 0.2s; }
-        .input-pro:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(52,152,219,0.1); }
-        .btn { padding: 13px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: 0.2s; font-size: 14px; }
+        /* Forms */
+        .input-pro { width: 100%; padding: 13px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; }
+        .btn { padding: 13px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: #95a5a6; color: white; }
         
-        #map { height: 320px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); z-index: 1; }
+        #map { height: 320px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
         #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* Marketplace Cards */
-        .pro-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 15px; transition: 0.3s; }
-        .pro-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #eee; }
+        /* Marketplace */
+        .pro-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i>
-        <p style="margin-top:15px; font-weight:700;">Processing request...</p>
-    </div>
+    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i><p style="margin-top:15px; font-weight:700;">Processing...</p></div>
 
     <div id="auth-page">
         <div class="auth-box">
@@ -116,35 +109,35 @@
         <div id="home" class="page">
             <div class="hero">
                 <h1>Affordable Moving Help for Students</h1>
-                <p>Connect with fellow NZ students to get help moving your belongings. Efficient, reliable, and community-focused.</p>
+                <p>Built for the NZ student community. Fast, secure, and reliable moves between dorms and rentals.</p>
                 <div style="display:flex; justify-content:center; gap:15px;">
                     <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-plus"></i> Post a Request</button>
-                    <button class="btn btn-secondary" onclick="window.scrollTo({top: 800, behavior:'smooth'})">Explore Market</button>
+                    <button class="btn btn-secondary" onclick="window.scrollTo({top: 800, behavior:'smooth'})">Explore Jobs</button>
                 </div>
             </div>
 
             <div class="features-grid">
-                <div class="feature-card"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--success)"></i><h3>Low Cost</h3><p>Pay small amounts or offer campus credits.</p></div>
-                <div class="feature-card"><i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i><h3>Flexible</h3><p>Schedule moves around your class timetable.</p></div>
-                <div class="feature-card"><i class="fa-solid fa-shield-halved" style="color:var(--warning)"></i><h3>Trusted</h3><p>Verified .ac.nz academic members only.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-dollar-sign" style="color:var(--success)"></i><h3>Low Cost</h3><p>Student prices.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i><h3>Flexible</h3><p>On your time.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-shield-halved" style="color:var(--warning)"></i><h3>Trusted</h3><p>.ac.nz Verified.</p></div>
             </div>
 
-            <h2 style="margin-bottom: 20px;">Current Marketplace</h2>
+            <h2>Marketplace</h2>
             <div id="hall" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px;"></div>
         </div>
 
         <div id="dashboard" class="page">
-            <h2>My Active Jobs</h2>
+            <h2>Active Workflows</h2>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px;">
-                <div id="col-pending" style="background:rgba(0,0,0,0.02); padding:15px; border-radius:12px; min-height:400px;"><h4>Open Tasks</h4></div>
-                <div id="col-progress" style="background:#fff8e1; padding:15px; border-radius:12px; min-height:400px;"><h4>In Progress</h4></div>
-                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>History</h4></div>
+                <div id="col-pending" style="background:#f1f3f5; padding:15px; border-radius:12px; min-height:400px;"><h4>Open</h4></div>
+                <div id="col-progress" style="background:#fff8e1; padding:15px; border-radius:12px; min-height:400px;"><h4>Moving</h4></div>
+                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>Done</h4></div>
             </div>
         </div>
 
         <div id="post-task" class="page">
             <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); max-width:800px; margin:0 auto;">
-                <h3>Post Move Request</h3>
+                <h3>New Move Request</h3>
                 <div id="map"></div>
                 <form id="post-form">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
@@ -155,19 +148,21 @@
                         <input type="datetime-local" id="p_dt" class="input-pro">
                         <input type="text" id="p_reward" placeholder="Reward (e.g. $40)" class="input-pro">
                     </div>
-                    <textarea id="p_items" placeholder="List items (e.g. 5 boxes, 1 small desk)..." class="input-pro" rows="3"></textarea>
-                    <label class="btn btn-secondary" style="width:100%; margin-bottom:15px;">
-                        <i class="fa-solid fa-camera"></i> <span id="file-name">Attach Image (Cloudinary)</span>
-                        <input type="file" id="p_file" accept="image/*" style="display:none" onchange="document.getElementById('file-name').innerText=this.files[0].name">
-                    </label>
-                    <button type="submit" class="btn btn-primary" style="width:100%">Publish Now</button>
+                    <textarea id="p_items" placeholder="What are we moving?" class="input-pro" rows="3"></textarea>
+                    <input type="file" id="p_file" accept="image/*" class="input-pro">
+                    <button type="submit" class="btn btn-primary" style="width:100%">Publish Task</button>
                 </form>
             </div>
         </div>
 
         <div id="profile" class="page">
-            <div id="profile-content">
-                </div>
+            <div style="background: white; padding: 40px; border-radius: 24px; border: 1px solid var(--border); text-align: center; max-width:500px; margin: 0 auto;">
+                <div id="p-avatar" style="width: 90px; height: 90px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; font-weight: 800;">?</div>
+                <h2 id="p-anon" style="margin-bottom: 5px;">-</h2>
+                <div id="p-rating" style="color: var(--warning); font-weight: 800; font-size: 20px; margin-bottom: 25px;">★ 5.0</div>
+                <div id="p-info" style="text-align: left; color: #657786; font-size: 14px; line-height: 2.2;"></div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 30px; background: #fff5f5; color: #e74c3c;" onclick="logout()">Logout</button>
+            </div>
         </div>
     </div>
 
@@ -186,20 +181,14 @@
 
         async function sendCode() {
             const email = document.getElementById('r-email').value;
-            if(!email.endsWith('.ac.nz')) return alert("Valid .ac.nz university email required!");
-            
+            if(!email.endsWith('.ac.nz')) return alert("Use a valid .ac.nz email!");
             document.getElementById('loader').style.display='flex';
             const r = await fetch(`${API}/auth/send-code`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})});
-            const res = await r.json();
             document.getElementById('loader').style.display='none';
-            if(res.success) alert("Verification code sent to your academic email!");
-            else alert(res.message);
+            alert("Check your email for the code!");
         }
 
         async function handleRegister() {
-            const pw = document.getElementById('r-pw').value;
-            if(pw !== document.getElementById('r-pw-confirm').value) return alert("Passwords do not match!");
-
             const data = {
                 student_id: document.getElementById('r-id').value,
                 email: document.getElementById('r-email').value,
@@ -208,14 +197,12 @@
                 phone: document.getElementById('r-phone').value,
                 anonymous_name: document.getElementById('r-anon').value,
                 code: document.getElementById('r-code').value,
-                password: pw,
+                password: document.getElementById('r-pw').value,
                 school_name: "University of Auckland"
             };
-
             const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
             const res = await r.json();
-            if(res.success) { alert("Registration successful! You can now login."); toggleAuth('login'); }
-            else alert(res.message);
+            if(res.success) { alert("Registration Success!"); toggleAuth('login'); } else alert(res.message);
         }
 
         async function handleLogin() {
@@ -223,11 +210,7 @@
             const password = document.getElementById('l-pw').value;
             const r = await fetch(`${API}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id, password})});
             const res = await r.json();
-            if(res.success) {
-                user = res.user;
-                localStorage.setItem('user', JSON.stringify(user));
-                location.reload();
-            } else alert("Invalid Credentials");
+            if(res.success) { user = res.user; localStorage.setItem('user', JSON.stringify(user)); location.reload(); } else alert("Failed");
         }
 
         function navigate(p) {
@@ -237,16 +220,16 @@
             updateNav();
             if(p==='home') loadHall();
             if(p==='dashboard') loadDash();
-            if(p==='profile') loadProfilePage();
+            if(p==='profile') loadProfileData();
             if(p==='post-task') setTimeout(initMap, 200);
         }
 
         function updateNav() {
             document.getElementById('nav-menu').innerHTML = `
-                <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-store"></i> Market</a>
-                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-list-check"></i> Dashboard</a>
-                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-circle-plus"></i> Post</a>
-                <a onclick="navigate('profile')" class="${pAct('profile')}"><i class="fa-solid fa-user-circle"></i> Profile</a>
+                <a onclick="navigate('home')" class="${pAct('home')}">Market</a>
+                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}">Jobs</a>
+                <a onclick="navigate('post-task')" class="${pAct('post-task')}">Post</a>
+                <a onclick="navigate('profile')" class="${pAct('profile')}">Profile</a>
             `;
         }
         const pAct = (id) => document.getElementById(id).classList.contains('active') ? 'active-link' : '';
@@ -270,9 +253,9 @@
             document.getElementById('hall').innerHTML = d.list.map(t => `
                 <div class="pro-card">
                     ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : ''}
-                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span style="color:var(--warning)">★${t.rating_avg.toFixed(1)}</span></div>
-                    <p style="font-size:13px; color:#657786; margin:10px 0;">${t.from_addr} to ${t.to_addr}</p>
-                    ${t.publisher_id !== user.student_id ? `<button class="btn btn-primary" style="width:100%" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>` : '<small style="color:var(--primary)">Your Listing</small>'}
+                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span>★${t.rating_avg.toFixed(1)}</span></div>
+                    <p style="font-size:12px; color:#657786;">${t.from_addr} → ${t.to_addr}</p>
+                    ${t.publisher_id !== user.student_id ? `<button class="btn btn-primary" style="width:100%" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept</button>` : '<small>My Post</small>'}
                 </div>
             `).join('');
         }
@@ -282,14 +265,14 @@
             const d = await r.json();
             const col = { pending: '', assigned: '', finished: '' };
             d.list.forEach(t => {
-                const h = `<div style="background:white; padding:15px; border-radius:10px; border:1px solid #eee; margin-bottom:10px; font-size:12px;"><b>${t.reward}</b><br>${t.items_desc}</div>`;
+                const h = `<div style="background:white; padding:10px; border-radius:8px; border:1px solid #eee; margin-bottom:10px; font-size:12px;"><b>${t.reward}</b><br>${t.items_desc}</div>`;
                 if(t.status==='pending') col.pending += h;
                 else if(t.status==='assigned') col.assigned += h;
                 else col.finished += h;
             });
-            document.getElementById('col-pending').innerHTML = '<h4>Open Tasks</h4>' + col.pending;
-            document.getElementById('col-progress').innerHTML = '<h4>In Progress</h4>' + col.assigned;
-            document.getElementById('col-finished').innerHTML = '<h4>History</h4>' + col.finished;
+            document.getElementById('col-pending').innerHTML = '<h4>Open</h4>' + col.pending;
+            document.getElementById('col-progress').innerHTML = '<h4>Moving</h4>' + col.assigned;
+            document.getElementById('col-finished').innerHTML = '<h4>Done</h4>' + col.finished;
         }
 
         async function workflow(task_id, status, helper_id=null) {
@@ -309,27 +292,24 @@
             fd.append('reward', document.getElementById('p_reward').value);
             fd.append('items_desc', document.getElementById('p_items').value);
             if(document.getElementById('p_file').files[0]) fd.append('task_image', document.getElementById('p_file').files[0]);
-            
             await fetch(`${API}/task/create`, {method:'POST', body:fd});
             document.getElementById('loader').style.display='none';
             navigate('home');
         };
 
-        async function loadProfilePage() {
-            const r = await fetch('profile.html');
-            const html = await r.text();
-            document.getElementById('profile-content').innerHTML = html;
-            
-            const pr = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
-            const pd = await pr.json();
-            const u = pd.user;
-
+        async function loadProfileData() {
+            const r = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
+            const d = await r.json();
+            const u = d.user;
             document.getElementById('p-avatar').innerText = u.anonymous_name[0].toUpperCase();
             document.getElementById('p-anon').innerText = u.anonymous_name;
-            document.getElementById('val-id').innerText = u.student_id;
-            document.getElementById('val-name').innerText = `${u.first_name} ${u.given_name}`;
-            document.getElementById('val-email').innerText = u.email;
-            document.getElementById('val-phone').innerText = u.phone;
+            document.getElementById('p-rating').innerHTML = `★ ${u.rating_avg.toFixed(1)}`;
+            document.getElementById('p-info').innerHTML = `
+                <p><b>Student ID:</b> ${u.student_id}</p>
+                <p><b>Name:</b> ${u.first_name} ${u.given_name}</p>
+                <p><b>Email:</b> ${u.email}</p>
+                <p><b>Mobile:</b> ${u.phone}</p>
+            `;
         }
 
         function logout() { localStorage.clear(); location.reload(); }
