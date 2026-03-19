@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DormLift Pro V8.0 - Official Student Service</title>
+    <title>DormLift - Affordable Student Moving</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -11,559 +11,300 @@
 
     <style>
         :root { --primary: #3498db; --bg: #f4f7f9; --text: #2c3e50; --card: #fff; --border: #e1e8ed; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
-        body { margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        body { margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 
         /* 导航栏 */
         nav { background: var(--card); padding: 15px 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 24px; font-weight: 800; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .logo-badge { font-size: 10px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .nav-links { display: flex; gap: 25px; align-items: center; }
-        .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; padding: 5px 0; transition: 0.2s; }
+        .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .nav-links a:hover { color: var(--primary); }
         .active-link { color: var(--primary) !important; border-bottom: 2px solid var(--primary); }
 
-        /* 容器 */
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
+        /* 容器与页面切换 */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { letter-spacing: -1px; margin-bottom: 25px; font-size: 32px; }
-
-        /* 任务大厅 (Market) */
-        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
-        .pro-card { background: var(--card); border-radius: 16px; padding: 25px; border: 1px solid var(--border); transition: 0.3s; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        .pro-card:hover { box-shadow: 0 10px 30px rgba(52, 152, 219, 0.08); transform: translateY(-3px); }
-        .task-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: #eee; border: 1px solid #f0f0f0; }
+        /* --- 截图风格：Landing Page --- */
+        .hero { background: white; padding: 80px 40px; text-align: center; border-radius: 24px; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .hero h1 { font-size: 42px; color: #2c3e50; margin-bottom: 20px; letter-spacing: -1px; }
+        .hero p { color: #7f8c8d; font-size: 18px; max-width: 750px; margin: 0 auto 35px; }
         
-        /* 标签 */
-        .badge { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 700; text-transform: uppercase; position: absolute; top: 15px; right: 15px; }
-        .badge-pending { background: #e3f2fd; color: #1565c0; }
-        .badge-assigned { background: #fff3e0; color: #ef6c00; }
-        .badge-completed { background: #e8f5e9; color: #2e7d32; }
-        .elevator-badge { font-size: 18px; color: var(--primary); position: absolute; top: 215px; right: 25px; background: white; padding: 5px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .feature-card { background: white; padding: 40px 25px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .feature-card i { font-size: 32px; margin-bottom: 20px; display: block; }
+        .feature-card h3 { margin-bottom: 15px; font-size: 20px; }
+        .feature-card p { font-size: 14px; color: #657786; }
 
-        /* 仪表盘 (My Jobs) */
-        .dash-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .dash-col { background: rgba(52, 152, 219, 0.05); padding: 20px; border-radius: 16px; min-height: 600px; border: 1px dashed rgba(52, 152, 219, 0.2); }
-        .dash-col h4 { margin: 0 0 20px 5px; color: #657786; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .dash-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; cursor: pointer; }
-        .dash-card:hover { border-color: var(--primary); transform: scale(1.02); }
+        /* --- 列表与卡片 --- */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .pro-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); position: relative; transition: 0.3s; }
+        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: #f8f9fa; }
+        
+        /* --- 注册与登录页面 --- */
+        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: white; padding: 50px; border-radius: 24px; border: 1px solid var(--border); width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: center; }
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
+        .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; font-weight: 700; color: #657786; }
+        .auth-tabs .active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* 表单与地图 (Post) */
-        .form-box { background: white; padding: 50px; border-radius: 24px; border: 1px solid var(--border); max-width: 800px; margin: 0 auto; box-shadow: 0 15px 50px rgba(0,0,0,0.02); }
-        #map { height: 350px; border-radius: 16px; margin-bottom: 20px; border: 2px solid var(--border); z-index: 10; }
-        .input-pro { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; font-size: 15px; transition: 0.2s; font-family: inherit; }
-        .input-pro:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
-        .file-label { display: block; background: #f8f9fa; border: 2px dashed #ccd0d5; padding: 30px; text-align: center; cursor: pointer; border-radius: 12px; margin-bottom: 20px; transition: 0.2s; color: #657786; }
-        .file-label:hover { border-color: var(--primary); background: rgba(52, 152, 219, 0.05); color: var(--primary); }
-        .file-label i { font-size: 24px; margin-bottom: 10px; display: block; }
-
-        /* 资料卡 (Profile) */
-        .profile-card { background: white; padding: 50px; border-radius: 24px; border: 1px solid var(--border); display: flex; gap: 50px; align-items: center; box-shadow: 0 15px 50px rgba(0,0,0,0.02); }
-        .avatar { width: 130px; height: 130px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: 800; text-transform: uppercase; box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2); }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
-        .info-item label { display: block; font-size: 11px; color: #aab8c2; font-weight: 800; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 1px; }
-        .info-item span { font-weight: 600; font-size: 17px; color: var(--text); }
-
-        /* 按钮 */
-        .btn { padding: 13px 28px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        /* --- 通用组件 --- */
+        .input-pro { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; font-size: 15px; transition: 0.2s; }
+        .input-pro:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+        .btn { padding: 14px 25px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #2980b9; transform: translateY(-1px); }
-        .btn-success { background: var(--success); color: white; width: 100%; margin-top: 10px; }
-        .btn-success:hover { background: #219150; }
-        .btn-warning { background: var(--warning); color: white; width: 100%; margin-top: 10px; }
-        .btn-danger { background: #fff; color: var(--danger); border: 1px solid var(--danger); }
-        .btn-danger:hover { background: #fff5f5; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        
+        /* 地图 */
+        #map { height: 350px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
 
-        /* 评价模态框 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; padding: 40px; border-radius: 24px; width: 420px; text-align: center; animation: modalSlideUp 0.3s ease; }
-        @keyframes modalSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .stars { font-size: 40px; color: #e1e8ed; margin: 25px 0; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
-        .stars i { transition: 0.2s; }
-        .stars .active { color: var(--warning); transform: scale(1.1); }
-
-        /* 上传加载动画 (Cloudinary) */
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* 登录页 (真实使用入门) */
-        #login-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 50px; border-radius: 24px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.05); width: 350px; }
-
-        @media (max-width: 768px) {
-            nav { padding: 15px 20px; }
-            .dash-grid { grid-template-columns: 1fr; }
-            .form-box, .profile-card { padding: 30px; }
-            .info-grid { grid-template-columns: 1fr; }
-            .profile-card { flex-direction: column; text-align: center; }
-        }
+        /* 加载遮罩 */
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="font-weight:700; color:var(--text); font-size:18px;">Uploading Photo to Cloudinary...</p>
-        <p style="color:#657786; font-size:14px; margin-top:5px;">This ensures high-quality images for helpers</p>
-    </div>
+    <div id="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--primary)"></i><p style="margin-top:20px; font-weight:700;">Uploading to Cloudinary...</p></div>
 
-    <div id="login-page">
-        <div class="login-box">
+    <div id="auth-page">
+        <div class="auth-box">
             <div class="logo" style="justify-content:center; margin-bottom:30px;"><i class="fa-solid fa-truck-ramp-box"></i> DormLift</div>
-            <h3 style="margin-bottom:10px;">Welcome Students</h3>
-            <p style="color:#657786; font-size:14px; margin-bottom:30px;">Enter your Student ID to access the platform.</p>
-            <input type="text" id="login-id" placeholder="e.g. 12345678" class="input-pro" style="text-align:center;">
-            <button class="btn btn-primary" style="width:100%" onclick="mockLogin()">Enter Marketplace</button>
-            <p style="font-size:12px; color:#aab8c2; margin-top:20px;">NZ University Email Verification Active</p>
+            <div class="auth-tabs">
+                <div id="tab-login" class="active" onclick="toggleAuth('login')">Login</div>
+                <div id="tab-reg" onclick="toggleAuth('reg')">Register</div>
+            </div>
+            
+            <div id="form-login">
+                <input type="text" id="l-id" placeholder="Student ID" class="input-pro">
+                <input type="password" id="l-pw" placeholder="Password" class="input-pro">
+                <button class="btn btn-primary" style="width:100%" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+            </div>
+
+            <div id="form-reg" style="display:none">
+                <input type="text" id="r-id" placeholder="Student ID (8 digits)" class="input-pro">
+                <input type="email" id="r-email" placeholder="Uni Email (.ac.nz)" class="input-pro">
+                <input type="text" id="r-anon" placeholder="Anonymous Nickname" class="input-pro">
+                <input type="password" id="r-pw" placeholder="Password" class="input-pro">
+                <button class="btn btn-primary" style="width:100%" onclick="handleRegister()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+            </div>
+            <p style="font-size:12px; color:#aab8c2; margin-top:20px;">Built for New Zealand University Community</p>
         </div>
     </div>
 
     <nav>
-        <div class="logo" onclick="navigate('home')"><i class="fa-solid fa-truck-ramp-box"></i> DormLift <span class="logo-badge">V8.0 PRO</span></div>
+        <div class="logo" onclick="navigate('home')"><i class="fa-solid fa-truck-ramp-box"></i> DormLift</div>
         <div class="nav-links" id="nav-menu"></div>
     </nav>
 
     <div class="container">
         
-        <div id="home" class="page active">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                <h2 style="margin:0;">Active Requests</h2>
-                <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-plus"></i> Create Request</button>
-            </div>
-            <div id="hall" class="market-grid">
+        <div id="home" class="page">
+            <div class="hero">
+                <h1>Affordable Moving Help for University Students</h1>
+                <p>Connect with fellow students to get help moving your belongings into or out of dorms - cheap, reliable, and community-focused.</p>
+                <div style="display:flex; justify-content:center; gap:20px;">
+                    <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-paper-plane"></i> Post a Moving Request</button>
+                    <button class="btn btn-secondary" onclick="window.scrollTo({top: 800, behavior:'smooth'})">Become a Helper</button>
                 </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fa-solid fa-hand-holding-dollar" style="color:#27ae60"></i>
+                    <h3>Low Cost</h3>
+                    <p>Cheaper than professional movers - pay small amounts or offer campus credits to fellow students.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-calendar-check" style="color:#3498db"></i>
+                    <h3>Flexible</h3>
+                    <p>Schedule moves around your class timetable - no rigid time slots.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-shield-halved" style="color:#f39c12"></i>
+                    <h3>Trusted</h3>
+                    <p>Student-to-student network with ratings and basic checks for peace of mind.</p>
+                </div>
+            </div>
+
+            <h2 style="font-size: 24px; margin-bottom: 25px;"><i class="fa-solid fa-store" style="font-size:18px; color:var(--primary)"></i> Active Marketplace</h2>
+            <div id="hall" class="market-grid"></div>
         </div>
 
         <div id="dashboard" class="page">
-            <h2>My Task Workflow</h2>
-            <div class="dash-grid">
-                <div class="dash-col" id="col-pending"><h4><i class="fa-solid fa-hourglass-start" style="color:#1565c0"></i> Pending ⏳</h4></div>
-                <div class="dash-col" id="col-progress"><h4><i class="fa-solid fa-truck-fast" style="color:#ef6c00"></i> Moving 🚚</h4></div>
-                <div class="dash-col" id="col-finished"><h4><i class="fa-solid fa-circle-check" style="color:#2e7d32"></i> History ✅</h4></div>
+            <h2><i class="fa-solid fa-layer-group"></i> My Job Workflow</h2>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+                <div id="col-pending" style="background:#eee; padding:15px; border-radius:12px; min-height:400px;"><h4>Pending</h4></div>
+                <div id="col-progress" style="background:#fff3e0; padding:15px; border-radius:12px; min-height:400px;"><h4>Moving</h4></div>
+                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>History</h4></div>
             </div>
         </div>
 
         <div id="post-task" class="page">
-            <div class="form-box">
-                <h3 style="margin-top:0; font-size:24px; margin-bottom:25px;">Post New Move Request</h3>
+            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); max-width:800px; margin:0 auto;">
+                <h3><i class="fa-solid fa-circle-plus"></i> Post New Request</h3>
                 <div id="map"></div>
-                <p style="font-size:13px; color:#657786; margin-top:-10px; margin-bottom:20px;"><i class="fa-solid fa-location-dot"></i> Click map to set 1st: Pickup, 2nd: Destination.</p>
                 <form id="v8-post-form">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-                        <input type="text" id="p_from" placeholder="Pickup (Click Map)" class="input-pro" required readonly>
-                        <input type="text" id="p_to" placeholder="Destination (Click Map)" class="input-pro" required readonly>
+                        <input type="text" id="p_from" placeholder="Pickup (Click Map)" class="input-pro" readonly>
+                        <input type="text" id="p_to" placeholder="Destination (Click Map)" class="input-pro" readonly>
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-                        <input type="datetime-local" id="p_dt" class="input-pro" required>
-                        <input type="text" id="p_reward" placeholder="Reward (e.g. $50 or Coffee)" class="input-pro" required>
+                        <input type="datetime-local" id="p_dt" class="input-pro">
+                        <input type="text" id="p_reward" placeholder="Reward (e.g. $50)" class="input-pro">
                     </div>
-                    
-                    <label class="file-label" id="file-label-zone">
-                        <i class="fa-solid fa-camera"></i> 
-                        <span id="file-display" style="font-weight:600;">Attach Photo for Helper</span>
-                        <span style="display:block; font-size:12px; margin-top:5px;">Helpers judge if they can assist based on items</span>
-                        <input type="file" id="p_file" accept="image/*" style="display:none">
+                    <textarea id="p_items" placeholder="List items (e.g. 5 boxes, 1 desk)..." class="input-pro" rows="3"></textarea>
+                    <label style="display:block; background:#f8f9fa; border:2px dashed #ccc; padding:20px; text-align:center; border-radius:12px; margin-bottom:20px; cursor:pointer;">
+                        <i class="fa-solid fa-camera"></i> <span id="file-name">Attach Photo</span>
+                        <input type="file" id="p_file" accept="image/*" style="display:none" onchange="document.getElementById('file-name').innerText=this.files[0].name">
                     </label>
-                    
-                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; align-items:center; margin-bottom:15px; background:#f8f9fa; padding:15px; border-radius:12px; border:1fr solid var(--border);">
-                        <select id="p_weight" class="input-pro" style="margin:0;"><option value="Light">🍃 Light Move (Boxes/Bags)</option><option value="Heavy">💪 Heavy Furniture (Bed/Sofa)</option></select>
-                        <label style="font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; justify-content:center;"><input type="checkbox" id="p_elevator" style="width:18px; height:18px;"> Elevator Available</label>
-                    </div>
-                    <textarea id="p_items" placeholder="List key items (e.g. 5 boxes, 1 desk, 1 chair, small fridge)..." class="input-pro" rows="4"></textarea>
-                    <button type="submit" class="btn btn-primary" style="width:100%; font-size:16px; padding:15px;"><i class="fa-solid fa-paper-plane"></i> Publish to Marketplace</button>
+                    <button type="submit" class="btn btn-primary" style="width:100%">Publish Request</button>
                 </form>
             </div>
         </div>
 
         <div id="profile" class="page">
-            <div class="profile-card">
-                <div id="p-avatar" class="avatar">?</div>
-                <div style="flex:1">
-                    <h2 id="p-anon" style="margin:0 0 10px 0; font-size:45px;">-</h2>
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:30px; color:var(--warning); font-weight:700; font-size:18px;">
-                        <i class="fa-solid fa-star"></i> <span id="p-rating">5.0</span>
-                        <span style="color:#aab8c2; font-weight:400; font-size:14px;">(<span id="p-tasks">0</span> tasks completed)</span>
-                    </div>
-                    <div class="info-grid">
-                        <div class="info-item"><label>Student ID</label><span id="p-id">-</span></div>
-                        <div class="info-item"><label>University</label><span id="p-school">-</span></div>
-                        <div class="info-item"><label>Real Name</label><span id="p-name">-</span></div>
-                        <div class="info-item"><label>Gender</label><span id="p-gender">-</span></div>
-                        <div class="info-item"><label>Email</label><span id="p-email">-</span></div>
-                        <div class="info-item"><label>Phone</label><span id="p-phone">-</span></div>
-                    </div>
+            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); display:flex; gap:40px; align-items:center;">
+                <div id="p-avatar" style="width:120px; height:120px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:50px; font-weight:800;">?</div>
+                <div>
+                    <h2 id="p-anon" style="margin:0;">-</h2>
+                    <p id="p-rating" style="color:var(--warning); font-weight:700; font-size:20px;">★ 5.0</p>
+                    <div id="p-info" style="font-size:14px; color:#657786;"></div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <div id="review-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">Rate Helper Experience</h3>
-            <p style="color:#657786; font-size:14px;">Your rating helps build trust in the DormLift community.</p>
-            <div class="stars" id="star-box">
-                <i class="fa-solid fa-star" data-v="1"></i><i class="fa-solid fa-star" data-v="2"></i><i class="fa-solid fa-star" data-v="3"></i><i class="fa-solid fa-star" data-v="4"></i><i class="fa-solid fa-star" data-v="5"></i>
-            </div>
-            <textarea id="rev-comment" class="input-pro" placeholder="Optional comment about their help..." rows="3"></textarea>
-            <button class="btn btn-primary" style="width:100%" onclick="submitReview()"><i class="fa-solid fa-check"></i> Submit Rating</button>
-            <button class="btn btn-danger" style="width:100%; margin-top:10px; border:none;" onclick="document.getElementById('review-modal').style.display='none'">Cancel</button>
-        </div>
-    </div>
-
     <script>
-        // 真实部署：适配本地与 Railway 域名
-        const API = window.location.origin + '/api'; 
-        
-        // 状态管理
+        const API = window.location.origin + '/api';
         let user = JSON.parse(localStorage.getItem('user')) || null;
-        let map=null, markers=[], curRevTask=null, curScore=5;
+        let map, markers = [];
 
-        // 初始化检查
-        window.onload = () => {
-            if(user) {
-                document.getElementById('login-page').style.display='none';
-                loadProfile(); // 预加载
-                navigate('home');
-            }
-        };
-
-        // 演示用模拟登录 (真实使用应请求后端 login 接口)
-        function mockLogin() {
-            const id = document.getElementById('login-id').value;
-            if(id.length < 3) { alert("Enter valid Student ID"); return; }
-            // 模拟一个用户对象存入 localStorage
-            user = { student_id: id, anonymous_name: "Student_" + id.slice(-4) };
-            localStorage.setItem('user', JSON.stringify(user));
-            document.getElementById('login-page').style.display='none';
-            navigate('home');
+        // Auth 切换
+        function toggleAuth(type) {
+            const isLogin = type === 'login';
+            document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('form-reg').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('tab-login').className = isLogin ? 'active' : '';
+            document.getElementById('tab-reg').className = isLogin ? '' : 'active';
         }
 
-        function logout() { localStorage.clear(); location.reload(); }
-
-        // 导航逻辑
+        // 导航控制
         function navigate(p) {
             if(!user) return;
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
             document.getElementById(p).classList.add('active');
             updateNav();
-            
-            // 页面特定加载逻辑
             if(p==='home') loadHall();
             if(p==='dashboard') loadDash();
             if(p==='profile') loadProfile();
-            if(p==='post-task') setTimeout(initMap, 200); // 确保地图容器已渲染
+            if(p==='post-task') setTimeout(initMap, 200);
         }
 
-        // 动态导航栏
         function updateNav() {
             const menu = document.getElementById('nav-menu');
-            if(!user) return;
             menu.innerHTML = `
-                <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-house"></i> Market</a>
-                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-list-check"></i> My Jobs</a>
-                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-pen-to-square"></i> Post</a>
+                <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-store"></i> Market</a>
+                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-layer-group"></i> Jobs</a>
+                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-circle-plus"></i> Post</a>
                 <a onclick="navigate('profile')" class="${pAct('profile')}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a onclick="logout()" style="color:var(--danger); font-size:18px; margin-left:10px;"><i class="fa-solid fa-right-from-bracket"></i></a>
+                <a onclick="logout()" style="color:var(--danger)"><i class="fa-solid fa-power-off"></i></a>
             `;
         }
         const pAct = (id) => document.getElementById(id).classList.contains('active') ? 'active-link' : '';
 
-        // --- 1. 地图逻辑 (取点) ---
-        function initMap() {
-            if(map) { map.invalidateSize(); return; }
-            // 默认中心点：奥克兰大学 (新西兰)
-            map = L.map('map').setView([-36.8509, 174.7645], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+        // --- 核心逻辑 ---
 
+        async function handleLogin() {
+            const student_id = document.getElementById('l-id').value;
+            const password = document.getElementById('l-pw').value;
+            const r = await fetch(`${API}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id, password})});
+            const res = await r.json();
+            if(res.success) {
+                user = res.user;
+                localStorage.setItem('user', JSON.stringify(user));
+                document.getElementById('auth-page').style.display = 'none';
+                navigate('home');
+            } else alert("Invalid Login");
+        }
+
+        async function handleRegister() {
+            const data = {
+                student_id: document.getElementById('r-id').value,
+                email: document.getElementById('r-email').value,
+                anonymous_name: document.getElementById('r-anon').value,
+                password: document.getElementById('r-pw').value,
+                school_name: "University of Auckland"
+            };
+            const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            const res = await r.json();
+            if(res.success) { alert("Success! Please Login."); toggleAuth('login'); }
+            else alert(res.message);
+        }
+
+        function initMap() {
+            if(map) return;
+            map = L.map('map').setView([-36.8509, 174.7645], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             map.on('click', e => {
-                if(markers.length>=2) { 
-                    markers.forEach(m=>map.removeLayer(m)); 
-                    markers=[]; 
-                    document.getElementById('p_from').value = '';
-                    document.getElementById('p_to').value = '';
-                }
-                
-                let m = L.marker(e.latlng).addTo(map); 
-                markers.push(m);
-                
-                // 简单的坐标格式化 (真实使用可以接入地理编码 API 转为地址)
+                if(markers.length >= 2) { markers.forEach(m=>map.removeLayer(m)); markers=[]; }
+                let m = L.marker(e.latlng).addTo(map); markers.push(m);
                 const loc = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
-                
-                if(markers.length===1) {
-                    document.getElementById('p_from').value = "Pickup: " + loc;
-                    m.bindPopup("<b>1. Pickup Point</b>").openPopup();
-                } else {
-                    document.getElementById('p_to').value = "Dropoff: " + loc;
-                    m.bindPopup("<b>2. Destination</b>").openPopup();
-                    
-                    // 自动缩放以适应两个点
-                    let group = new L.featureGroup(markers);
-                    map.fitBounds(group.getBounds().pad(0.1));
-                }
+                if(markers.length===1) document.getElementById('p_from').value = loc;
+                else document.getElementById('p_to').value = loc;
             });
         }
 
-        // --- 2. 任务大厅 (展示真实照片 + PostgreSQL 状态) ---
         async function loadHall() {
-            const hall = document.getElementById('hall');
-            hall.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1/-1;">Loading active requests...</p>';
-            
-            try {
-                const r = await fetch(`${API}/task/all`); 
-                const d = await r.json();
-                
-                if(!d.list || d.list.length === 0) {
-                    hall.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1/-1; background:white; padding:50px; border-radius:16px;">🎉 No active requests near you. Check back later!</p>';
-                    return;
-                }
-
-                hall.innerHTML = d.list.map(t => `
-                    <div class="pro-card">
-                        <div>
-                            ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : '<div class="task-img" style="display:flex; align-items:center; justify-content:center; color:#ccd0d5; background:#f8f9fa;"><i class="fa-solid fa-image fa-2x"></i></div>'}
-                            
-                            ${t.has_elevator ? `<div class="elevator-badge" title="Elevator Available"><i class="fa-solid fa-elevator"></i></div>` : ''}
-                            
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <b style="font-size:20px; color:var(--success);">${t.reward}</b> 
-                                <span style="font-size:13px; color:#657786; background:#f4f7f9; padding:4px 8px; border-radius:6px;">
-                                    <i class="fa-solid fa-weight-hanging"></i> ${t.load_weight}
-                                </span>
-                            </div>
-                            
-                            <p style="font-size:14px; color:#657786; margin:0 0 15px 0; line-height:1.4;">
-                                <i class="fa-solid fa-location-dot" style="color:#ccd0d5"></i> ${t.from_addr} <br>
-                                <i class="fa-solid fa-arrow-down" style="color:#ccd0d5; margin-left:2px;"></i><br>
-                                <i class="fa-solid fa-flag-checkered" style="color:#ccd0d5"></i> ${t.to_addr}
-                            </p>
-                        </div>
-                        
-                        <div style="border-top: 1px solid #f0f0f0; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
-                            <div style="font-size:13px; color:#999;">By: <b>${t.pub_name}</b> <span style="color:var(--warning)">★${t.rating_avg.toFixed(1)}</span></div>
-                            
-                            ${t.publisher_id !== user.student_id ? 
-                                `<button class="btn btn-primary" style="padding:8px 15px; font-size:13px;" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>` 
-                                : '<span class="badge badge-pending">Your Post</span>'}
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                hall.innerHTML = '<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">Error loading marketplace. Ensure backend is running.</p>';
-            }
+            const r = await fetch(`${API}/task/all`);
+            const d = await r.json();
+            document.getElementById('hall').innerHTML = d.list.map(t => `
+                <div class="pro-card">
+                    ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : ''}
+                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span style="color:var(--warning)">★${t.rating_avg}</span></div>
+                    <p style="font-size:13px; color:#657786;">${t.from_addr} → ${t.to_addr}</p>
+                    <button class="btn btn-primary" style="width:100%; font-size:12px;" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>
+                </div>
+            `).join('');
         }
 
-        // --- 3. 仪表盘 (看板 + 动作按钮) ---
-        async function loadDash() {
-            try {
-                const r = await fetch(`${API}/user/dashboard`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
-                const d = await r.json();
-                const col = { pending: '', assigned: '', finished: '' };
-                
-                d.list.forEach(t => {
-                    const isPub = t.publisher_id === user.student_id;
-                    const isHelp = t.helper_id === user.student_id;
-                    let btn = '', roleBadge = '';
-
-                    // 角色标记
-                    if(isPub) roleBadge = '<span style="color:var(--primary); font-size:11px; font-weight:700;">[Publisher]</span>';
-                    if(isHelp) roleBadge = '<span style="color:var(--success); font-size:11px; font-weight:700;">[Helper]</span>';
-
-                    // 动作按钮逻辑
-                    if(t.status==='assigned' && isPub) {
-                        btn = `<button class="btn btn-success" style="font-size:12px; padding:8px;" onclick="workflow(${t.id}, 'completed')"><i class="fa-solid fa-handshake-angle"></i> Confirm Delivered</button>`;
-                    } else if(t.status==='completed' && isPub) {
-                        // 适配 PostgreSQL：这里状态已变为 completed，发布者可以评价
-                        btn = `<button class="btn btn-warning" style="font-size:12px; padding:8px;" onclick="openReview(${t.id}, '${t.helper_id}')"><i class="fa-solid fa-star"></i> Rate Helper</button>`;
-                    } else if(t.status==='reviewed') {
-                        btn = '<div style="color:#aab8c2; font-size:12px; margin-top:10px; text-align:center;">Review Submitted</div>';
-                    } else if(t.status==='assigned' && isHelp) {
-                         btn = '<div style="color:#ef6c00; font-size:12px; margin-top:10px; text-align:center;">Waiting for confirmation</div>';
-                    }
-                    
-                    const h = `
-                        <div class="dash-card">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                <small style="color:#999;">${t.move_date}</small>
-                                ${roleBadge}
-                            </div>
-                            <p style="margin:5px 0; font-size:13px; font-weight:600; color:var(--text);">${t.items_desc.substring(0, 50)}${t.items_desc.length>50?'...':''}</p>
-                            <div style="font-size:12px; color:#657786;"><i class="fa-solid fa-coins"></i> ${t.reward}</div>
-                            ${btn}
-                        </div>
-                    `;
-                    
-                    // 归类到不同卡片
-                    if(t.status==='pending') col.pending += h;
-                    else if(t.status==='assigned') col.progress += h;
-                    else if(t.status==='completed' || t.status==='reviewed') col.finished += h; // 归档
-                });
-
-                document.getElementById('col-pending').innerHTML = '<h4>Pending</h4>' + (col.pending || '<p style="font-size:12px; color:#999; text-align:center; margin-top:20px;">No pending posts</p>');
-                document.getElementById('col-progress').innerHTML = '<h4>Moving</h4>' + (col.progress || '<p style="font-size:12px; color:#999; text-align:center; margin-top:20px;">No jobs in progress</p>');
-                document.getElementById('col-finished').innerHTML = '<h4>History</h4>' + (col.finished || '<p style="font-size:12px; color:#999; text-align:center; margin-top:20px;">No history</p>');
-
-            } catch (e) { alert("Error loading dashboard"); }
-        }
-
-        // 状态流转通用函数
         async function workflow(task_id, status, helper_id=null) {
-            if(status === 'assigned' && !confirm("Accept this job? Please show up on time.")) return;
-            if(status === 'completed' && !confirm("Confirm that items have been delivered?")) return;
-
-            try {
-                const r = await fetch(`${API}/task/workflow`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({task_id, status, helper_id})});
-                if(status === 'assigned') {
-                    alert("Job accepted! Check 'My Jobs' for details.");
-                    navigate('dashboard');
-                } else {
-                    loadDash(); // 刷新
-                }
-            } catch (e) { alert("Workflow error"); }
+            await fetch(`${API}/task/workflow`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({task_id, status, helper_id})});
+            navigate('dashboard');
         }
-
-        // --- 4. 发布任务 (处理 Cloudinary 上传 + PostgreSQL 适配) ---
-        // 文件名显示优化
-        document.getElementById('p_file').onchange = function() {
-            if(this.files[0]) {
-                document.getElementById('file-display').innerText = "✔️ " + this.files[0].name;
-                document.getElementById('file-label-zone').style.borderColor = 'var(--success)';
-                document.getElementById('file-label-zone').style.background = '#e8f5e9';
-            }
-        };
 
         document.getElementById('v8-post-form').onsubmit = async e => {
             e.preventDefault();
-            
-            // 真实使用安全校验
-            if(markers.length < 2) { alert("Please click on the map to set Pickup and Destination points."); return; }
-
-            // 显示 Cloudinary 上传 Loading
             document.getElementById('loader').style.display='flex';
+            const fd = new FormData();
+            fd.append('publisher_id', user.student_id);
+            fd.append('move_date', document.getElementById('p_dt').value.split('T')[0]);
+            fd.append('move_time', document.getElementById('p_dt').value.split('T')[1]);
+            fd.append('from_addr', document.getElementById('p_from').value);
+            fd.append('to_addr', document.getElementById('p_to').value);
+            fd.append('reward', document.getElementById('p_reward').value);
+            fd.append('items_desc', document.getElementById('p_items').value);
+            if(document.getElementById('p_file').files[0]) fd.append('task_image', document.getElementById('p_file').files[0]);
             
-            const formData = new FormData();
-            const dtRaw = document.getElementById('p_dt').value; // YYYY-MM-DDTHH:MM
-            const dt = dtRaw.split('T');
-            
-            formData.append('publisher_id', user.student_id);
-            formData.append('move_date', dt[0]); 
-            formData.append('move_time', dt[1]);
-            
-            // 真实地址应该从地理编码获取，这里演示使用坐标字符串
-            formData.append('from_addr', document.getElementById('p_from').value.replace("Pickup: ", ""));
-            formData.append('to_addr', document.getElementById('p_to').value.replace("Dropoff: ", ""));
-            
-            formData.append('reward', document.getElementById('p_reward').value);
-            formData.append('load_weight', document.getElementById('p_weight').value);
-            
-            // 适配 PostgreSQL：Checkbox 需转为真正的布尔值发送
-            formData.append('has_elevator', document.getElementById('p_elevator').checked); 
-            
-            formData.append('items_desc', document.getElementById('p_items').value || "Multiple student items");
-
-            const file = document.getElementById('p_file').files[0];
-            if(file) {
-                // 后端 multer 接收的字段名必须是 'task_image'
-                formData.append('task_image', file); 
-            }
-
-            try {
-                const r = await fetch(`${API}/task/create`, {method:'POST', body:formData});
-                const d = await r.json();
-                if(d.success) {
-                    // 重置表单
-                    e.target.reset();
-                    markers.forEach(m=>map.removeLayer(m));
-                    markers=[];
-                    document.getElementById('file-display').innerText = "Attach Photo for Helper";
-                    document.getElementById('file-label-zone').style = '';
-                    
-                    alert("Request Published Successfully!");
-                    navigate('home');
-                } else {
-                    alert("Failed to publish: " + (d.message || "Server error"));
-                }
-            } catch (err) {
-                alert("Connection error during upload.");
-            } finally {
-                // 隐藏 Loading
-                document.getElementById('loader').style.display='none';
-            }
+            await fetch(`${API}/task/create`, {method:'POST', body:fd});
+            document.getElementById('loader').style.display='none';
+            navigate('home');
         };
 
-        // --- 5. 个人资料 (加载完整真实数据) ---
         async function loadProfile() {
-            try {
-                const r = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
-                const d = await r.json();
-                
-                if(!d.success || !d.user) {
-                    // 如果模拟登录的用户后端不存在，显示默认
-                    document.getElementById('p-anon').innerText = user.anonymous_name;
-                    document.getElementById('p-id').innerText = user.student_id;
-                    return;
-                }
-
-                const u = d.user;
-                // 填充资料
-                document.getElementById('p-avatar').innerText = u.anonymous_name[0];
-                document.getElementById('p-anon').innerText = u.anonymous_name;
-                document.getElementById('p-rating').innerText = u.rating_avg.toFixed(1);
-                document.getElementById('p-tasks').innerText = u.task_count;
-                
-                document.getElementById('p-id').innerText = u.student_id;
-                document.getElementById('p-school').innerText = u.school_name || 'NZ University';
-                document.getElementById('p-name').innerText = (u.first_name && u.given_name) ? (u.first_name + ' ' + u.given_name) : '-';
-                document.getElementById('p-gender').innerText = u.gender || '-';
-                document.getElementById('p-email').innerText = u.email || '-';
-                document.getElementById('p-phone').innerText = u.phone || '-';
-                
-            } catch (e) { console.log("Profile load error - Normal for mock login"); }
+            const r = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
+            const d = await r.json();
+            document.getElementById('p-avatar').innerText = d.user.anonymous_name[0];
+            document.getElementById('p-anon').innerText = d.user.anonymous_name;
+            document.getElementById('p-rating').innerText = `★ ${d.user.rating_avg}`;
+            document.getElementById('p-info').innerHTML = `<p><i class="fa-solid fa-id-card"></i> ID: ${d.user.student_id}</p><p><i class="fa-solid fa-envelope"></i> ${d.user.email}</p>`;
         }
 
-        // --- 6. 评价系统系统系统 ---
-        function openReview(id, hId) {
-            if(!hId || hId === 'null') { alert("No helper assigned to this task."); return; }
-            curRevTask={id, hId}; 
-            // 重置星级
-            curScore=5;
-            document.querySelectorAll('#star-box i').forEach(x=>x.classList.add('active'));
-            document.getElementById('rev-comment').value = '';
-            document.getElementById('review-modal').style.display='flex'; 
-        }
-
-        // 星级交互
-        document.querySelectorAll('#star-box i').forEach(s => s.onclick = function(){
-            curScore=parseInt(this.dataset.v);
-            document.querySelectorAll('#star-box i').forEach((x,i)=>x.classList.toggle('active', i<curScore));
-        });
-
-        // 提交评价到后端适配器逻辑
-        async function submitReview() {
-            const comment = document.getElementById('rev-comment').value;
-            try {
-                // 注意：这里需要后端有 /api/task/review 接口 (之前为你生成的 server.js 中已包含)
-                const r = await fetch(`${API}/task/review`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
-                    task_id: curRevTask.id, 
-                    to_id: curRevTask.hId, // 评价目标：Helper
-                    from_id: user.student_id,
-                    score: curScore,
-                    comment: comment
-                })});
-                const d = await r.json();
-                if(d.success) {
-                    alert("Thank you for your review!");
-                    document.getElementById('review-modal').style.display='none'; 
-                    loadDash(); // 刷新仪表盘，此时状态应变为 'reviewed'
-                }
-            } catch (e) { alert("Error submitting review"); }
-        }
-
+        function logout() { localStorage.clear(); location.reload(); }
+        if(user) { document.getElementById('auth-page').style.display='none'; navigate('home'); }
     </script>
 </body>
 </html>
