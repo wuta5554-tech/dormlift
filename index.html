@@ -3,132 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DormLift - Student Moving Marketplace</title>
-    
+    <title>DormLift - NZ Student Moving</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <style>
-        :root { --primary: #3498db; --bg: #f4f7f9; --text: #2c3e50; --card: #fff; --border: #e1e8ed; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-
-        /* Navigation */
-        nav { background: var(--card); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 24px; font-weight: 800; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; }
-        .active-link { color: var(--primary) !important; border-bottom: 2px solid var(--primary); }
-
-        /* Container & Pages */
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Auth Layer */
-        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
-        .auth-box { background: white; padding: 35px; border-radius: 20px; width: 400px; border: 1px solid var(--border); box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
-        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; text-align: center; font-weight: 700; color: #95a5a6; }
-        .auth-tabs .active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-
-        /* Form UI */
-        .input-pro { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-size: 14px; }
-        .btn { padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        :root { --primary: #3498db; --bg: #f4f7f9; --text: #2c3e50; --card: #fff; --border: #e1e8ed; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); }
+        nav { background: var(--card); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); cursor: pointer; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .page { display: none; } .page.active { display: block; }
+        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: white; padding: 30px; border-radius: 15px; width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .input-pro { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
+        .btn { padding: 12px 25px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #ecf0f1; color: var(--text); }
-        
-        #map { height: 300px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
+        #map { height: 300px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .pro-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
         #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .pro-card { background: white; border-radius: 15px; padding: 18px; border: 1px solid var(--border); margin-bottom: 15px; }
-        .task-img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i><p>Processing...</p></div>
+    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i><p>Sending Email...</p></div>
 
     <div id="auth-page">
         <div class="auth-box">
-            <div class="logo" style="justify-content:center; margin-bottom:20px;"><i class="fa-solid fa-truck-fast"></i> DormLift</div>
-            <div class="auth-tabs">
-                <div id="tab-login" class="active" onclick="toggleAuth('login')">Login</div>
-                <div id="tab-reg" onclick="toggleAuth('reg')">Register</div>
-            </div>
-            
-            <div id="form-login">
+            <h2 style="text-align:center; color:var(--primary);">DormLift NZ</h2>
+            <div id="login-form">
                 <input type="text" id="l-id" placeholder="Student ID" class="input-pro">
                 <input type="password" id="l-pw" placeholder="Password" class="input-pro">
-                <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Sign In</button>
+                <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+                <p style="text-align:center; font-size:14px;">No account? <a href="#" onclick="toggleAuth(false)">Register</a></p>
             </div>
-
-            <div id="form-reg" style="display:none;">
+            <div id="reg-form" style="display:none;">
                 <input type="text" id="r-id" placeholder="Student ID" class="input-pro">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+                <div style="display:flex; gap:10px;">
                     <input type="text" id="r-first" placeholder="First Name" class="input-pro">
-                    <input type="text" id="r-given" placeholder="Given Name" class="input-pro">
+                    <input type="text" id="r-given" placeholder="Last Name" class="input-pro">
                 </div>
-                <input type="text" id="r-phone" placeholder="Phone Number" class="input-pro">
-                <div style="display:flex; gap:8px;">
-                    <input type="email" id="r-email" placeholder="Email Address" class="input-pro" style="flex:2">
-                    <button class="btn btn-secondary" style="flex:1; font-size:12px;" onclick="sendCode()">Verify</button>
+                <input type="text" id="r-phone" placeholder="Mobile Phone" class="input-pro">
+                <div style="display:flex; gap:10px;">
+                    <input type="email" id="r-email" placeholder="Email" class="input-pro">
+                    <button class="btn btn-primary" style="width:100px; font-size:12px;" onclick="sendCode()">Verify</button>
                 </div>
-                <input type="text" id="r-code" placeholder="6-Digit Code (or 888888)" class="input-pro">
-                <input type="text" id="r-anon" placeholder="Display Name" class="input-pro">
+                <input type="text" id="r-code" placeholder="6-Digit Verification Code" class="input-pro">
+                <input type="text" id="r-anon" placeholder="Display Nickname" class="input-pro">
                 <input type="password" id="r-pw" placeholder="Password" class="input-pro">
-                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="handleRegister()">Register</button>
+                <button class="btn btn-primary" onclick="handleRegister()">Complete Registration</button>
+                <p style="text-align:center; font-size:14px;"><a href="#" onclick="toggleAuth(true)">Back to Login</a></p>
             </div>
         </div>
     </div>
 
     <nav>
-        <div class="logo" onclick="navigate('home')"><i class="fa-solid fa-truck-fast"></i> DormLift</div>
-        <div class="nav-links" id="nav-menu"></div>
+        <div class="logo" onclick="navigate('home')">DormLift</div>
+        <div id="nav-items" style="display:flex; gap:20px;">
+            <a href="#" onclick="navigate('home')">Market</a>
+            <a href="#" onclick="navigate('post')">Post Task</a>
+            <a href="#" onclick="navigate('dash')">My Tasks</a>
+            <a href="#" onclick="navigate('prof')">Profile</a>
+        </div>
     </nav>
 
     <div class="container">
         <div id="home" class="page active">
-            <div style="text-align:center; padding: 40px 0;">
-                <h1>University Moving Marketplace</h1>
-                <p>Find student helpers or earn money assisting others.</p>
-            </div>
-            <h2>Active Requests</h2>
-            <div id="hall" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+            <h3>Marketplace</h3>
+            <div id="task-list"></div>
         </div>
-
-        <div id="dashboard" class="page">
-            <h2>My Tasks Dashboard</h2>
-            <div id="dash-list"></div>
+        <div id="post" class="page">
+            <h3>Post a Moving Request</h3>
+            <div id="map"></div>
+            <input type="text" id="p_from" placeholder="Pick-up Location" class="input-pro" readonly>
+            <input type="text" id="p_to" placeholder="Drop-off Location" class="input-pro" readonly>
+            <input type="datetime-local" id="p_dt" class="input-pro">
+            <input type="text" id="p_reward" placeholder="Reward (e.g. $40)" class="input-pro">
+            <textarea id="p_items" placeholder="Items description" class="input-pro"></textarea>
+            <input type="file" id="p_file" class="input-pro">
+            <button class="btn btn-primary" onclick="createTask()">Publish</button>
         </div>
-
-        <div id="post-task" class="page">
-            <div class="pro-card" style="max-width:600px; margin:0 auto;">
-                <h3>Post New Move Request</h3>
-                <div id="map"></div>
-                <form id="post-form">
-                    <input type="text" id="p_from" placeholder="Pick-up (Click Map)" class="input-pro" readonly>
-                    <input type="text" id="p_to" placeholder="Drop-off (Click Map)" class="input-pro" readonly>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-                        <input type="datetime-local" id="p_dt" class="input-pro">
-                        <input type="text" id="p_reward" placeholder="Reward (e.g. $50)" class="input-pro">
-                    </div>
-                    <textarea id="p_items" placeholder="List items to move..." class="input-pro" rows="3"></textarea>
-                    <input type="file" id="p_file" class="input-pro">
-                    <button type="submit" class="btn btn-primary" style="width:100%">Publish Now</button>
-                </form>
-            </div>
+        <div id="dash" class="page">
+            <h3>My Dashboard</h3>
+            <div id="my-tasks"></div>
         </div>
-
-        <div id="profile" class="page">
-            <div class="pro-card" style="max-width:400px; margin:0 auto; text-align:center;">
-                <div id="p-avatar" style="width:80px; height:80px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 15px;">?</div>
-                <h2 id="p-name">-</h2>
-                <div id="p-rating" style="color:var(--warning); margin-bottom:20px;">★ 5.0</div>
-                <div id="p-details" style="text-align:left; font-size:14px; line-height:2;"></div>
-                <button class="btn btn-secondary" style="width:100%; margin-top:20px; color:var(--danger);" onclick="logout()">Logout</button>
-            </div>
+        <div id="prof" class="page">
+            <h3>Profile</h3>
+            <div id="profile-info" class="pro-card"></div>
+            <button class="btn btn-primary" style="background:#e74c3c;" onclick="logout()">Logout</button>
         </div>
     </div>
 
@@ -137,150 +99,145 @@
         let user = JSON.parse(localStorage.getItem('user')) || null;
         let map, markers = [];
 
-        // Auth Logic
-        function toggleAuth(type) {
-            document.getElementById('form-login').style.display = type === 'login' ? 'block' : 'none';
-            document.getElementById('form-reg').style.display = type === 'login' ? 'none' : 'block';
-            document.getElementById('tab-login').className = type === 'login' ? 'active' : '';
-            document.getElementById('tab-reg').className = type === 'reg' ? 'active' : '';
+        function toggleAuth(isLogin) {
+            document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('reg-form').style.display = isLogin ? 'none' : 'block';
         }
 
         async function sendCode() {
             const email = document.getElementById('r-email').value;
-            if(!email.includes('@')) return alert("Enter valid email!");
+            if(!email) return alert("Email required");
             document.getElementById('loader').style.display = 'flex';
-            await fetch(`${API}/auth/send-code`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})});
+            try {
+                const r = await fetch(`${API}/auth/send-code`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email })
+                });
+                const res = await r.json();
+                alert(res.message);
+            } catch(e) { alert("Server error"); }
             document.getElementById('loader').style.display = 'none';
-            alert("Code triggered! Check inbox or use 888888.");
         }
 
         async function handleRegister() {
             const data = {
                 student_id: document.getElementById('r-id').value,
-                email: document.getElementById('r-email').value,
                 first_name: document.getElementById('r-first').value,
                 given_name: document.getElementById('r-given').value,
                 phone: document.getElementById('r-phone').value,
-                anonymous_name: document.getElementById('r-anon').value,
+                email: document.getElementById('r-email').value,
                 code: document.getElementById('r-code').value,
+                anonymous_name: document.getElementById('r-anon').value,
                 password: document.getElementById('r-pw').value
             };
-            const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            const r = await fetch(`${API}/auth/register`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
             const res = await r.json();
-            if(res.success) { alert("Success! Now login."); toggleAuth('login'); } else alert(res.message);
+            if(res.success) { alert("Registration successful!"); toggleAuth(true); } else alert(res.message);
         }
 
         async function handleLogin() {
             const student_id = document.getElementById('l-id').value;
             const password = document.getElementById('l-pw').value;
-            const r = await fetch(`${API}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id, password})});
+            const r = await fetch(`${API}/auth/login`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ student_id, password })
+            });
             const res = await r.json();
-            if(res.success) { user = res.user; localStorage.setItem('user', JSON.stringify(user)); location.reload(); } else alert("Login failed.");
+            if(res.success) { 
+                user = res.user; 
+                localStorage.setItem('user', JSON.stringify(user)); 
+                location.reload(); 
+            } else alert("Login failed");
         }
 
-        // Navigation
         function navigate(p) {
-            if(!user) return;
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
             document.getElementById(p).classList.add('active');
-            updateNav();
-            if(p==='home') loadHall();
-            if(p==='dashboard') loadDash();
-            if(p==='profile') loadProfile();
-            if(p==='post-task') setTimeout(initMap, 200);
+            if(p === 'post') initMap();
+            if(p === 'home') loadTasks();
+            if(p === 'dash') loadDash();
+            if(p === 'prof') loadProfile();
         }
 
-        function updateNav() {
-            document.getElementById('nav-menu').innerHTML = `
-                <a onclick="navigate('home')" class="${pAct('home')}">Market</a>
-                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}">My Tasks</a>
-                <a onclick="navigate('post-task')" class="${pAct('post-task')}">Post</a>
-                <a onclick="navigate('profile')" class="${pAct('profile')}">Profile</a>
-            `;
-        }
-        const pAct = (id) => document.getElementById(id).classList.contains('active') ? 'active-link' : '';
-
-        // Map Logic
         function initMap() {
-            if(map) { map.invalidateSize(); return; }
+            if(map) return;
             map = L.map('map').setView([-36.8509, 174.7645], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             map.on('click', e => {
-                if(markers.length >= 2) { markers.forEach(m=>map.removeLayer(m)); markers=[]; }
+                if(markers.length >= 2) { markers.forEach(m => map.removeLayer(m)); markers = []; }
                 markers.push(L.marker(e.latlng).addTo(map));
-                const loc = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
-                if(markers.length===1) document.getElementById('p_from').value = loc;
-                else document.getElementById('p_to').value = loc;
+                if(markers.length === 1) document.getElementById('p_from').value = `${e.latlng.lat.toFixed(4)},${e.latlng.lng.toFixed(4)}`;
+                else document.getElementById('p_to').value = `${e.latlng.lat.toFixed(4)},${e.latlng.lng.toFixed(4)}`;
             });
         }
 
-        // Data Loading
-        async function loadHall() {
-            const r = await fetch(`${API}/task/all`);
-            const d = await r.json();
-            document.getElementById('hall').innerHTML = d.list.map(t => `
-                <div class="pro-card">
-                    ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : ''}
-                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span>★${t.rating_avg.toFixed(1)}</span></div>
-                    <p style="font-size:13px;">${t.items_desc}</p>
-                    <p style="font-size:11px; color:#657786;">Route: ${t.from_addr} → ${t.to_addr}</p>
-                    ${t.publisher_id !== user.student_id ? `<button class="btn btn-primary" style="width:100%" onclick="workflow(${t.id}, 'assigned')">Accept Task</button>` : '<small>Your Post</small>'}
-                </div>
-            `).join('');
-        }
-
-        async function loadDash() {
-            const r = await fetch(`${API}/user/dashboard`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
-            const d = await r.json();
-            document.getElementById('dash-list').innerHTML = d.list.map(t => `
-                <div class="pro-card">
-                    <div style="display:flex; justify-content:space-between">
-                        <span>Status: <b>${t.status.toUpperCase()}</b></span>
-                        ${t.status === 'assigned' ? `<button class="btn btn-secondary" style="padding:5px 10px; font-size:12px;" onclick="workflow(${t.id}, 'finished')">Mark Done</button>` : ''}
-                    </div>
-                    <p>${t.items_desc} - ${t.reward}</p>
-                </div>
-            `).join('');
-        }
-
-        async function workflow(task_id, status) {
-            await fetch(`${API}/task/workflow`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({task_id, status, helper_id: user.student_id})});
-            navigate('dashboard');
-        }
-
-        document.getElementById('post-form').onsubmit = async e => {
-            e.preventDefault();
-            document.getElementById('loader').style.display = 'flex';
+        async function createTask() {
             const fd = new FormData();
             fd.append('publisher_id', user.student_id);
-            fd.append('move_date', document.getElementById('p_dt').value.split('T')[0]);
-            fd.append('move_time', document.getElementById('p_dt').value.split('T')[1]);
             fd.append('from_addr', document.getElementById('p_from').value);
             fd.append('to_addr', document.getElementById('p_to').value);
             fd.append('reward', document.getElementById('p_reward').value);
             fd.append('items_desc', document.getElementById('p_items').value);
             if(document.getElementById('p_file').files[0]) fd.append('task_image', document.getElementById('p_file').files[0]);
             
-            await fetch(`${API}/task/create`, {method:'POST', body:fd});
-            document.getElementById('loader').style.display = 'none';
+            await fetch(`${API}/task/create`, { method: 'POST', body: fd });
             navigate('home');
-        };
+        }
 
-        async function loadProfile() {
-            const r = await fetch(`${API}/user/profile`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id:user.student_id})});
+        async function loadTasks() {
+            const r = await fetch(`${API}/task/all`);
             const d = await r.json();
-            const u = d.user;
-            document.getElementById('p-avatar').innerText = u.anonymous_name[0].toUpperCase();
-            document.getElementById('p-name').innerText = u.anonymous_name;
-            document.getElementById('p-details').innerHTML = `
-                <p><b>Name:</b> ${u.first_name} ${u.given_name}</p>
-                <p><b>Phone:</b> ${u.phone}</p>
-                <p><b>Email:</b> ${u.email}</p>
+            document.getElementById('task-list').innerHTML = d.list.map(t => `
+                <div class="pro-card">
+                    ${t.img_url ? `<img src="${t.img_url}" style="width:100%; height:150px; object-fit:cover; border-radius:8px;">` : ''}
+                    <h4>${t.reward} - ${t.items_desc}</h4>
+                    <p>From: ${t.from_addr} To: ${t.to_addr}</p>
+                    <button class="btn btn-primary" onclick="acceptTask(${t.id})">Accept Task</button>
+                </div>
+            `).join('');
+        }
+
+        async function acceptTask(id) {
+            await fetch(`${API}/task/workflow`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ task_id: id, status: 'assigned', helper_id: user.student_id })
+            });
+            navigate('dash');
+        }
+
+        async function loadDash() {
+            const r = await fetch(`${API}/user/dashboard`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ student_id: user.student_id })
+            });
+            const d = await r.json();
+            document.getElementById('my-tasks').innerHTML = d.list.map(t => `
+                <div class="pro-card">
+                    <p><b>Status: ${t.status}</b> | Reward: ${t.reward}</p>
+                    <p>${t.items_desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function loadProfile() {
+            document.getElementById('profile-info').innerHTML = `
+                <p><b>Student ID:</b> ${user.student_id}</p>
+                <p><b>Name:</b> ${user.first_name} ${user.given_name}</p>
+                <p><b>Email:</b> ${user.email}</p>
+                <p><b>Rating:</b> ★ ${user.rating_avg}</p>
             `;
         }
 
         function logout() { localStorage.clear(); location.reload(); }
-        if(user) { document.getElementById('auth-page').style.display='none'; navigate('home'); }
+        if(user) { document.getElementById('auth-page').style.display = 'none'; navigate('home'); }
     </script>
 </body>
 </html>
