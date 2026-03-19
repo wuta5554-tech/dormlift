@@ -1,11 +1,21 @@
 {
-  "name": "dormlift-v8-nz-pro",
+  "name": "dormlift-nz-v8-pro",
   "version": "8.0.0",
-  "description": "Student-to-student moving marketplace for NZ",
+  "description": "Student-to-student moving marketplace for University of Auckland",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
+  "keywords": [
+    "express",
+    "postgresql",
+    "cloudinary",
+    "nodemailer",
+    "university-project"
+  ],
+  "author": "UoA Engineering Student",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.36.4",
@@ -15,6 +25,7 @@
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
     "node-fetch": "^2.6.7",
+    "nodemailer": "^6.9.1",
     "pg": "^8.10.0"
   },
   "engines": {
