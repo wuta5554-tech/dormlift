@@ -11,16 +11,30 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// --- 1. SMTP 配置 (使用 Railway 环境变量) ---
+// --- 1. 生产级 SMTP 配置 (使用 465 端口 + 强制 SSL) ---
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465, // 465 端口通常比 587 在云端更稳定
+  secure: true, // 使用 SSL
   auth: {
-    user: process.env.SMTP_EMAIL,    // 你的 Gmail 地址
-    pass: process.env.SMTP_PASSWORD // 16位 App Password
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASSWORD // 必须是 16 位 App Password
+  },
+  pool: true, // 使用连接池提高效率
+  maxConnections: 5,
+  maxMessages: 100
+});
+
+// 验证 SMTP 连接状态
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP 生产配置错误:", error.message);
+  } else {
+    console.log("✅ SMTP 邮件服务已就绪 (Real Production)");
   }
 });
 
-// --- 2. Cloudinary 配置 ---
+// --- 2. Cloudinary & 数据库配置 ---
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
   api_key: process.env.CLOUDINARY_KEY, 
@@ -29,11 +43,10 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: { folder: 'dormlift_nz', allowed_formats: ['jpg', 'png', 'jpeg'] }
+  params: { folder: 'dormlift_prod', allowed_formats: ['jpg', 'png', 'jpeg'] }
 });
 const upload = multer({ storage: storage });
 
-// --- 3. PostgreSQL 连接 ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
@@ -53,8 +66,8 @@ const initDB = async () => {
         items_desc TEXT, reward TEXT, img_url TEXT, status TEXT DEFAULT 'pending'
       );
     `);
-    console.log("✅ Database Tables Ready.");
-  } catch (err) { console.error("❌ DB Init Error:", err.message); }
+    console.log("✅ 数据库表已同步");
+  } catch (err) { console.error("❌ 数据库初始化失败:", err.message); }
 };
 initDB();
 
@@ -64,46 +77,43 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// --- 4. 邮件验证逻辑 (SMTP 直接发送) ---
+// --- 3. 真实验证码逻辑 ---
 app.post('/api/auth/send-code', async (req, res) => {
     const { email } = req.body;
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     verificationCodes.set(email, { code, expires: Date.now() + 600000 });
 
-    // 依然保留日志打印，作为双重保险
-    console.log(`[SMTP] Sending ${code} to ${email}`);
+    const mailOptions = {
+        from: `"DormLift NZ" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: "DormLift 验证码",
+        html: `
+            <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #eee; padding: 20px;">
+                <h2 style="color: #2980b9;">账号验证</h2>
+                <p>您好，您的验证码如下，请在 10 分钟内完成注册：</p>
+                <div style="background: #f9f9f9; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #2c3e50;">
+                    ${code}
+                </div>
+            </div>`
+    };
 
     try {
-        await transporter.sendMail({
-            from: `"DormLift NZ" <${process.env.SMTP_EMAIL}>`,
-            to: email,
-            subject: "DormLift Verification Code",
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #3498db;">DormLift Verification</h2>
-                    <p>Kia Ora! Your verification code is:</p>
-                    <h1 style="background: #f4f7f9; padding: 15px; text-align: center; letter-spacing: 5px;">${code}</h1>
-                    <p style="color: #7f8c8d; font-size: 12px;">This code will expire in 10 minutes.</p>
-                </div>`
-        });
-        res.json({ success: true, message: "Code sent via SMTP." });
+        await transporter.sendMail(mailOptions);
+        console.log(`[SMTP] 验证码已真实投递至: ${email}`);
+        res.json({ success: true, message: "验证码已发送" });
     } catch (err) {
-        console.error("❌ SMTP Error:", err.message);
-        // 如果 SMTP 报错，依然允许通过日志查看码进行演示
-        res.json({ success: true, message: "Check server logs if mail fails." });
+        console.error("❌ 邮件投递失败:", err.message);
+        res.status(500).json({ success: false, message: "邮件服务暂时不可用，请稍后再试" });
     }
 });
 
-// --- 5. 注册与工作流 API ---
+// --- 4. 注册与登录 (移除所有 Debug 码，只认真实 Code) ---
 app.post('/api/auth/register', async (req, res) => {
     const { student_id, email, password, code, first_name, given_name, anonymous_name, phone } = req.body;
     const record = verificationCodes.get(email);
     
-    // 万能码保底
-    if (code !== "888888") {
-        if (!record || record.code !== code || Date.now() > record.expires) {
-            return res.status(400).json({ success: false, message: "Invalid or expired code." });
-        }
+    if (!record || record.code !== code || Date.now() > record.expires) {
+        return res.status(400).json({ success: false, message: "验证码错误或已过期" });
     }
 
     try {
@@ -113,20 +123,22 @@ app.post('/api/auth/register', async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [student_id, email, hashed, first_name, given_name, anonymous_name, phone]
         );
+        verificationCodes.delete(email); // 注册成功后清除
         res.json({ success: true });
-    } catch (err) { res.status(400).json({ success: false, message: "User exists." }); }
+    } catch (err) { res.status(400).json({ success: false, message: "注册失败，该 ID 或邮箱可能已存在" }); }
 });
 
 app.post('/api/auth/login', async (req, res) => {
     const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
     const user = result.rows[0];
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-        return res.status(401).json({ success: false });
+        return res.status(401).json({ success: false, message: "学号或密码错误" });
     }
     delete user.password;
     res.json({ success: true, user });
 });
 
+// --- 5. 任务管理接口 ---
 app.post('/api/task/create', upload.single('task_image'), async (req, res) => {
     const { publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward } = req.body;
     const imgUrl = req.file ? req.file.path : '';
@@ -167,4 +179,4 @@ app.post('/api/user/profile', async (req, res) => {
     res.json({ success: true, user: result.rows[0] });
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 DormLift NZ V8.0 SMTP PRO Online`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 DormLift NZ V8.0 Production Online`));
