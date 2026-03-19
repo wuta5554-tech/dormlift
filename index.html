@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DormLift - Student Moving Marketplace</title>
+    <title>DormLift - Student Moving Marketplace NZ</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,47 +20,45 @@
         .nav-links a { text-decoration: none; color: #657786; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .active-link { color: var(--primary) !important; border-bottom: 2px solid var(--primary); }
 
-        /* Page Management */
+        /* Container & Animation */
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Hero & Features (Based on your Screenshot) */
+        /* Landing Style (Based on Screenshot) */
         .hero { background: white; padding: 60px 20px; text-align: center; border-radius: 24px; margin-bottom: 30px; border: 1px solid var(--border); }
-        .hero h1 { font-size: 36px; color: #2c3e50; margin-bottom: 15px; letter-spacing: -1px; }
-        .hero p { color: #7f8c8d; font-size: 17px; max-width: 650px; margin: 0 auto 30px; }
+        .hero h1 { font-size: 38px; color: #2c3e50; margin-bottom: 15px; letter-spacing: -1px; }
+        .hero p { color: #7f8c8d; font-size: 17px; max-width: 650px; margin: 0 auto 30px; line-height: 1.6; }
+        
         .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
-        .feature-card { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border); transition: 0.3s; }
+        .feature-card { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border); }
         .feature-card i { font-size: 32px; margin-bottom: 15px; display: block; }
 
-        /* Auth Pages */
-        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0; }
+        /* Auth Layer */
+        #auth-page { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 40px 0; }
         .auth-box { background: white; padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); }
         .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
         .auth-tabs div { flex: 1; padding: 10px; cursor: pointer; text-align: center; font-weight: 700; color: #657786; }
         .auth-tabs .active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* Inputs & Buttons */
-        .input-pro { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; }
-        .btn { padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-size: 14px; transition: 0.2s; }
+        /* Forms */
+        .input-pro { width: 100%; padding: 13px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; margin-bottom: 12px; font-size: 14px; }
+        .btn { padding: 13px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: #95a5a6; color: white; }
         
         #map { height: 320px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* Marketplace Cards */
+        /* Marketplace */
         .pro-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
-        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #eee; }
+        .task-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i>
-        <p style="margin-top:15px; font-weight:700;">Uploading to Cloudinary...</p>
-    </div>
+    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--primary)"></i><p style="margin-top:15px; font-weight:700;">Processing Request...</p></div>
 
     <div id="auth-page">
         <div class="auth-box">
@@ -77,27 +75,27 @@
             </div>
 
             <div id="form-reg" style="display:none; text-align: left;">
-                <label style="font-size:11px; color:#657786; font-weight:700; margin-bottom:5px; display:block;">PERSONAL INFO</label>
+                <label style="font-size:11px; color:#657786; font-weight:700; display:block; margin-bottom:5px;">IDENTITY</label>
                 <input type="text" id="r-id" placeholder="Student ID (8 digits)" class="input-pro">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
                     <input type="text" id="r-first" placeholder="First Name" class="input-pro">
                     <input type="text" id="r-given" placeholder="Given Name" class="input-pro">
                 </div>
 
-                <label style="font-size:11px; color:#657786; font-weight:700; margin-bottom:5px; display:block;">CONTACT</label>
-                <input type="text" id="r-phone" placeholder="Phone (e.g. 021...)" class="input-pro">
+                <label style="font-size:11px; color:#657786; font-weight:700; display:block; margin-bottom:5px;">CONTACT</label>
+                <input type="text" id="r-phone" placeholder="Mobile (e.g. 021...)" class="input-pro">
                 <div style="display:flex; gap:10px;">
                     <input type="email" id="r-email" placeholder="Uni Email (.ac.nz)" class="input-pro" style="flex:2">
-                    <button class="btn btn-secondary" style="flex:1; font-size:10px; height:45px;" onclick="sendCode()">Verify</button>
+                    <button class="btn btn-secondary" style="flex:1; font-size:10px; height:46px;" onclick="sendCode()">Verify</button>
                 </div>
-                <input type="text" id="r-code" placeholder="Verification Code (Try: 1234)" class="input-pro">
+                <input type="text" id="r-code" placeholder="6-Digit Verification Code" class="input-pro">
 
-                <label style="font-size:11px; color:#657786; font-weight:700; margin-bottom:5px; display:block;">SECURITY</label>
+                <label style="font-size:11px; color:#657786; font-weight:700; display:block; margin-bottom:5px;">SECURITY</label>
                 <input type="text" id="r-anon" placeholder="Display Nickname" class="input-pro">
                 <input type="password" id="r-pw" placeholder="Create Password" class="input-pro">
                 <input type="password" id="r-pw-confirm" placeholder="Confirm Password" class="input-pro">
                 
-                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="handleRegister()">Create Account</button>
+                <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="handleRegister()">Join Community</button>
             </div>
         </div>
     </div>
@@ -111,56 +109,62 @@
         <div id="home" class="page">
             <div class="hero">
                 <h1>Affordable Moving Help for Students</h1>
-                <p>Connect with fellow students to get help moving belongings - cheap, reliable, and community-focused.</p>
+                <p>Connect with fellow NZ students to get help moving your belongings. Built for students, by students.</p>
                 <div style="display:flex; justify-content:center; gap:15px;">
                     <button class="btn btn-primary" onclick="navigate('post-task')"><i class="fa-solid fa-plus"></i> Post a Request</button>
-                    <button class="btn btn-secondary" onclick="window.scrollTo(0, 800)">Explore Jobs</button>
+                    <button class="btn btn-secondary" onclick="window.scrollTo({top: 800, behavior:'smooth'})">View Tasks</button>
                 </div>
             </div>
 
             <div class="features-grid">
-                <div class="feature-card"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--success)"></i><h3>Low Cost</h3><p>Cheaper than pros.</p></div>
-                <div class="feature-card"><i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i><h3>Flexible</h3><p>Fits your schedule.</p></div>
-                <div class="feature-card"><i class="fa-solid fa-shield-halved" style="color:var(--warning)"></i><h3>Trusted</h3><p>Student ratings.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-dollar-sign" style="color:var(--success)"></i><h3>Low Cost</h3><p>Pay small amounts or offer credits.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-clock" style="color:var(--primary)"></i><h3>Flexible</h3><p>Work around your timetable.</p></div>
+                <div class="feature-card"><i class="fa-solid fa-shield-check" style="color:var(--warning)"></i><h3>Trusted</h3><p>Verified .ac.nz members only.</p></div>
             </div>
 
-            <h2>Active Marketplace</h2>
-            <div id="hall" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+            <h2>Marketplace</h2>
+            <div id="hall" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px;"></div>
         </div>
 
         <div id="dashboard" class="page">
-            <h2>My Workflows</h2>
+            <h2>Track Your Jobs</h2>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px;">
-                <div id="col-pending" style="background:#eee; padding:15px; border-radius:12px; min-height:400px;"><h4>Pending</h4></div>
-                <div id="col-progress" style="background:#fff3e0; padding:15px; border-radius:12px; min-height:400px;"><h4>Moving</h4></div>
-                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>Completed</h4></div>
+                <div id="col-pending" style="background:rgba(0,0,0,0.03); padding:15px; border-radius:12px; min-height:400px;"><h4>Pending</h4></div>
+                <div id="col-progress" style="background:#fff8e1; padding:15px; border-radius:12px; min-height:400px;"><h4>Moving</h4></div>
+                <div id="col-finished" style="background:#e8f5e9; padding:15px; border-radius:12px; min-height:400px;"><h4>Done</h4></div>
             </div>
         </div>
 
         <div id="post-task" class="page">
-            <div style="background:white; padding:30px; border-radius:24px; border:1px solid var(--border);">
-                <h3>Post Request</h3>
+            <div style="background:white; padding:40px; border-radius:24px; border:1px solid var(--border); max-width:800px; margin:0 auto;">
+                <h3>Post Move Request</h3>
                 <div id="map"></div>
                 <form id="post-form">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
                         <input type="text" id="p_from" placeholder="Pickup (Click Map)" class="input-pro" readonly>
-                        <input type="text" id="p_to" placeholder="Destination (Click Map)" class="input-pro" readonly>
+                        <input type="text" id="p_to" placeholder="Dropoff (Click Map)" class="input-pro" readonly>
                     </div>
-                    <input type="datetime-local" id="p_dt" class="input-pro">
-                    <input type="text" id="p_reward" placeholder="Reward (e.g. $50)" class="input-pro">
-                    <textarea id="p_items" placeholder="Items to move..." class="input-pro" rows="3"></textarea>
-                    <input type="file" id="p_file" class="input-pro">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                        <input type="datetime-local" id="p_dt" class="input-pro">
+                        <input type="text" id="p_reward" placeholder="Reward (e.g. $40)" class="input-pro">
+                    </div>
+                    <textarea id="p_items" placeholder="List items (e.g. 4 boxes, 1 desk)..." class="input-pro" rows="3"></textarea>
+                    <label class="btn btn-secondary" style="width:100%; margin-bottom:15px;">
+                        <i class="fa-solid fa-camera"></i> <span id="file-name">Attach Photo</span>
+                        <input type="file" id="p_file" accept="image/*" style="display:none" onchange="document.getElementById('file-name').innerText=this.files[0].name">
+                    </label>
                     <button type="submit" class="btn btn-primary" style="width:100%">Publish Now</button>
                 </form>
             </div>
         </div>
 
         <div id="profile" class="page">
-            <div style="background:white; padding:40px; border-radius:24px; text-align: center;">
-                <div id="p-avatar" style="width:80px; height:80px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 20px;">?</div>
-                <h2 id="p-anon">-</h2>
-                <div id="p-info" style="color:#657786;"></div>
-                <button class="btn btn-secondary" style="margin-top:20px;" onclick="logout()">Logout</button>
+            <div style="background:white; padding:50px; border-radius:24px; border:1px solid var(--border); text-align: center;">
+                <div id="p-avatar" style="width:100px; height:100px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px; font-weight:800;">?</div>
+                <h2 id="p-anon" style="font-size:32px; margin-bottom:5px;">-</h2>
+                <div id="p-rating" style="color:var(--warning); font-weight:800; font-size:20px; margin-bottom:20px;">★ 5.0</div>
+                <div id="p-info" style="color:#657786; line-height:2;"></div>
+                <button class="btn btn-danger" style="margin-top:30px;" onclick="logout()">Logout</button>
             </div>
         </div>
     </div>
@@ -178,10 +182,50 @@
             document.getElementById('tab-reg').className = isLogin ? '' : 'active';
         }
 
-        function sendCode() {
+        async function sendCode() {
             const email = document.getElementById('r-email').value;
-            if(!email.endsWith('.ac.nz')) return alert("Use a valid .ac.nz email!");
-            alert("Code sent to " + email + "\n(Demo: 1234)");
+            if(!email.endsWith('.ac.nz')) return alert("Valid .ac.nz university email required!");
+            
+            document.getElementById('loader').style.display='flex';
+            const r = await fetch(`${API}/auth/send-code`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})});
+            const res = await r.json();
+            document.getElementById('loader').style.display='none';
+            if(res.success) alert("Verification code sent to your student email!");
+            else alert(res.message);
+        }
+
+        async function handleRegister() {
+            const pw = document.getElementById('r-pw').value;
+            if(pw !== document.getElementById('r-pw-confirm').value) return alert("Passwords do not match!");
+
+            const data = {
+                student_id: document.getElementById('r-id').value,
+                email: document.getElementById('r-email').value,
+                first_name: document.getElementById('r-first').value,
+                given_name: document.getElementById('r-given').value,
+                phone: document.getElementById('r-phone').value,
+                anonymous_name: document.getElementById('r-anon').value,
+                code: document.getElementById('r-code').value,
+                password: pw,
+                school_name: "University of Auckland"
+            };
+
+            const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            const res = await r.json();
+            if(res.success) { alert("Success! You can now login."); toggleAuth('login'); }
+            else alert(res.message);
+        }
+
+        async function handleLogin() {
+            const student_id = document.getElementById('l-id').value;
+            const password = document.getElementById('l-pw').value;
+            const r = await fetch(`${API}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id, password})});
+            const res = await r.json();
+            if(res.success) {
+                user = res.user;
+                localStorage.setItem('user', JSON.stringify(user));
+                location.reload();
+            } else alert("Invalid ID or Password");
         }
 
         function navigate(p) {
@@ -198,48 +242,12 @@
         function updateNav() {
             document.getElementById('nav-menu').innerHTML = `
                 <a onclick="navigate('home')" class="${pAct('home')}"><i class="fa-solid fa-store"></i> Market</a>
-                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-list"></i> Jobs</a>
-                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-plus-circle"></i> Post</a>
+                <a onclick="navigate('dashboard')" class="${pAct('dashboard')}"><i class="fa-solid fa-tasks"></i> Jobs</a>
+                <a onclick="navigate('post-task')" class="${pAct('post-task')}"><i class="fa-solid fa-circle-plus"></i> Post</a>
                 <a onclick="navigate('profile')" class="${pAct('profile')}"><i class="fa-solid fa-user-circle"></i> Profile</a>
             `;
         }
         const pAct = (id) => document.getElementById(id).classList.contains('active') ? 'active-link' : '';
-
-        async function handleRegister() {
-            const pw = document.getElementById('r-pw').value;
-            const pw2 = document.getElementById('r-pw-confirm').value;
-            if(pw !== pw2) return alert("Passwords do not match!");
-            if(document.getElementById('r-code').value !== "1234") return alert("Wrong code!");
-
-            const data = {
-                student_id: document.getElementById('r-id').value,
-                email: document.getElementById('r-email').value,
-                first_name: document.getElementById('r-first').value,
-                given_name: document.getElementById('r-given').value,
-                phone: document.getElementById('r-phone').value,
-                anonymous_name: document.getElementById('r-anon').value,
-                password: pw,
-                school_name: "University of Auckland"
-            };
-
-            const r = await fetch(`${API}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
-            const res = await r.json();
-            if(res.success) { alert("Registration successful! Please login."); toggleAuth('login'); }
-            else alert(res.message);
-        }
-
-        async function handleLogin() {
-            const student_id = document.getElementById('l-id').value;
-            const password = document.getElementById('l-pw').value;
-            const r = await fetch(`${API}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({student_id, password})});
-            const res = await r.json();
-            if(res.success) {
-                user = res.user;
-                localStorage.setItem('user', JSON.stringify(user));
-                document.getElementById('auth-page').style.display = 'none';
-                navigate('home');
-            } else alert("Invalid Login Credentials");
-        }
 
         function initMap() {
             if(map) { map.invalidateSize(); return; }
@@ -260,9 +268,9 @@
             document.getElementById('hall').innerHTML = d.list.map(t => `
                 <div class="pro-card">
                     ${t.img_url ? `<img src="${t.img_url}" class="task-img">` : ''}
-                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span style="color:var(--warning)">★${t.rating_avg}</span></div>
-                    <p style="font-size:13px; color:#657786;">From ${t.from_addr} to ${t.to_addr}</p>
-                    <button class="btn btn-primary" style="width:100%" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>
+                    <div style="display:flex; justify-content:space-between"><b>${t.reward}</b> <span style="color:var(--warning)">★${t.rating_avg.toFixed(1)}</span></div>
+                    <p style="font-size:13px; color:#657786; margin:10px 0;">${t.from_addr} → ${t.to_addr}</p>
+                    ${t.publisher_id !== user.student_id ? `<button class="btn btn-primary" style="width:100%" onclick="workflow(${t.id}, 'assigned', '${user.student_id}')">Accept Job</button>` : '<small style="color:var(--primary)">Your Post</small>'}
                 </div>
             `).join('');
         }
@@ -272,14 +280,14 @@
             const d = await r.json();
             const col = { pending: '', assigned: '', finished: '' };
             d.list.forEach(t => {
-                const h = `<div style="background:white; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd; font-size:12px;">${t.move_date}: ${t.reward}</div>`;
+                const h = `<div style="background:white; padding:15px; border-radius:10px; border:1px solid #eee; margin-bottom:10px; font-size:12px;"><b>${t.reward}</b><br>${t.items_desc}</div>`;
                 if(t.status==='pending') col.pending += h;
                 else if(t.status==='assigned') col.assigned += h;
                 else col.finished += h;
             });
             document.getElementById('col-pending').innerHTML = '<h4>Pending</h4>' + col.pending;
             document.getElementById('col-progress').innerHTML = '<h4>Moving</h4>' + col.assigned;
-            document.getElementById('col-finished').innerHTML = '<h4>Completed</h4>' + col.finished;
+            document.getElementById('col-finished').innerHTML = '<h4>History</h4>' + col.finished;
         }
 
         async function workflow(task_id, status, helper_id=null) {
@@ -310,7 +318,8 @@
             const d = await r.json();
             document.getElementById('p-avatar').innerText = d.user.anonymous_name[0];
             document.getElementById('p-anon').innerText = d.user.anonymous_name;
-            document.getElementById('p-info').innerHTML = `<p>${d.user.email}</p><p>${d.user.phone}</p><p>Rating: ★${d.user.rating_avg}</p>`;
+            document.getElementById('p-rating').innerText = `★ ${d.user.rating_avg.toFixed(1)}`;
+            document.getElementById('p-info').innerHTML = `<p><i class="fa-solid fa-id-card"></i> Student ID: ${d.user.student_id}</p><p><i class="fa-solid fa-envelope"></i> ${d.user.email}</p><p><i class="fa-solid fa-phone"></i> ${d.user.phone}</p>`;
         }
 
         function logout() { localStorage.clear(); location.reload(); }
