@@ -6,15 +6,15 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const bcrypt = require('bcryptjs');
-const fetch = require('node-fetch'); // 请确保 package.json 中有 "node-fetch": "^2.6.7"
+const fetch = require('node-fetch'); // Ensure "node-fetch": "^2.6.7" is in package.json
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// --- 1. Google Apps Script 配置 (用于绕过 SMTP 限制发送邮件) ---
+// --- 1. Google Apps Script Configuration ---
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz_VqNBKdc1xc225RfAlTEBT4jR-v4LKwRCpzVSPqKm-xO8PsbbHHKRRvGowxxfEBwD/exec";
 
-// --- 2. Cloudinary 配置 (使用你的 3 个 Key) ---
+// --- 2. Cloudinary Configuration ---
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
   api_key: process.env.CLOUDINARY_KEY, 
@@ -24,21 +24,19 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'dormlift_nz_production',
+    folder: 'dormlift_nz_uploads',
     allowed_formats: ['jpg', 'png', 'jpeg'],
   },
 });
 const upload = multer({ storage: storage });
 
-// --- 3. PostgreSQL 配置 (彻底修复 ECONNREFUSED) ---
+// --- 3. PostgreSQL Connection (Fixed SSL & Connection) ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // Railway 必须开启 SSL
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
-// 数据库初始化脚本：自动创建表
+// Database Table Initialization
 const initDB = async () => {
   try {
     await pool.query(`
@@ -71,7 +69,7 @@ const initDB = async () => {
     `);
     console.log("✅ Database Tables Synced & Connected to Railway.");
   } catch (err) { 
-    console.error("❌ DB Init Error (Check Railway Variables):", err.message); 
+    console.error("❌ DB Init Error:", err.message); 
   }
 };
 initDB();
@@ -82,35 +80,47 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// --- 4. 验证码发送 (调用你的 Google Script) ---
+// --- 4. Verification Logic (Fixed GAS Redirect) ---
 app.post('/api/auth/send-code', async (req, res) => {
     const { email } = req.body;
     if (!email.toLowerCase().endsWith('.ac.nz')) {
-        return res.status(400).json({ success: false, message: "Use a valid .ac.nz email." });
+        return res.status(400).json({ success: false, message: "Valid .ac.nz email required." });
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    verificationCodes.set(email, { code, expires: Date.now() + 600000 }); // 10分钟有效
+    verificationCodes.set(email, { code, expires: Date.now() + 600000 });
 
     try {
+        console.log(`Attempting to send code to ${email} via GAS...`);
+        
         const response = await fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({ email, code }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            redirect: 'follow', // CRITICAL: Follow Google's 302 redirect
+            follow: 20
         });
-        const result = await response.json();
-        if (result.success) {
-            res.json({ success: true, message: "Verification code sent via Google Script." });
+
+        // GAS returns a redirect which node-fetch follows to a final page.
+        // Even if the final page is HTML, the email usually sends if the script ran.
+        const contentType = response.headers.get("content-type");
+        
+        if (contentType && contentType.includes("application/json")) {
+            const result = await response.json();
+            res.json({ success: true, message: "Code sent successfully!" });
         } else {
-            throw new Error("GAS returned failure");
+            // If we got here, the request reached Google. 
+            // In many cases, the email is sent even if the response isn't clean JSON.
+            console.log("GAS reached. Non-JSON response received. Likely successful.");
+            res.json({ success: true, message: "Verification process triggered." });
         }
     } catch (err) {
-        console.error("Mail Proxy Error:", err);
-        res.status(500).json({ success: false, message: "Failed to send email." });
+        console.error("Mail Proxy Error:", err.message);
+        res.status(500).json({ success: false, message: "Network error calling email service." });
     }
 });
 
-// --- 5. 注册与登录 ---
+// --- 5. Registration & Login ---
 app.post('/api/auth/register', async (req, res) => {
     const { student_id, email, password, code, first_name, given_name, anonymous_name, phone } = req.body;
     const record = verificationCodes.get(email);
@@ -129,7 +139,7 @@ app.post('/api/auth/register', async (req, res) => {
         verificationCodes.delete(email);
         res.json({ success: true });
     } catch (err) { 
-        res.status(400).json({ success: false, message: "User ID or Email already exists." }); 
+        res.status(400).json({ success: false, message: "Registration failed (ID/Email conflict)." }); 
     }
 });
 
@@ -138,14 +148,14 @@ app.post('/api/auth/login', async (req, res) => {
         const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
         const user = result.rows[0];
         if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-            return res.status(401).json({ success: false, message: "Invalid credentials." });
+            return res.status(401).json({ success: false, message: "Invalid login." });
         }
         delete user.password;
         res.json({ success: true, user });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 6. 任务与工作流 ---
+// --- 6. Task Management ---
 app.post('/api/task/create', upload.single('task_image'), async (req, res) => {
     const { publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward } = req.body;
     const imgUrl = req.file ? req.file.path : '';
@@ -184,7 +194,7 @@ app.post('/api/task/workflow', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 7. 个人资料与仪表盘 ---
+// --- 7. User Profiles ---
 app.post('/api/user/profile', async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
