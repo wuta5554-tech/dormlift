@@ -11,7 +11,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// --- 1. Cloudinary 配置 (从环境变量读取，保护密钥) ---
+// --- 1. Cloudinary 配置 (从 Railway 环境变量读取) ---
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
   api_key: process.env.CLOUDINARY_KEY, 
@@ -35,10 +35,10 @@ app.use(express.static(__dirname));
 // --- 2. PostgreSQL 连接池 ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Railway 生产环境必需
+  ssl: { rejectUnauthorized: false } 
 });
 
-// 初始化数据库表 (真实使用：增加字段约束)
+// 初始化数据库表 (包含真实姓名和电话字段)
 const initDB = async () => {
   try {
     await pool.query(`
@@ -47,7 +47,6 @@ const initDB = async () => {
         school_name TEXT, 
         first_name TEXT, 
         given_name TEXT, 
-        gender TEXT, 
         anonymous_name TEXT, 
         phone TEXT, 
         email TEXT UNIQUE, 
@@ -80,33 +79,35 @@ const initDB = async () => {
         comment TEXT
       );
     `);
-    console.log("✅ Database tables synced and ready.");
+    console.log("✅ Database synced: User, Task, and Review tables ready.");
   } catch (err) {
-    console.error("❌ Database init error:", err);
+    console.error("❌ DB Init Error:", err);
   }
 };
 initDB();
 
 // --- 3. 核心 API 路由 ---
 
-// 注册：加入学校邮箱后缀验证
+// 注册：支持真实姓名、电话、邮箱验证逻辑
 app.post('/api/auth/register', async (req, res) => {
-    const { student_id, email, password, school_name, first_name, given_name, anonymous_name } = req.body;
+    const { student_id, email, password, school_name, first_name, given_name, anonymous_name, phone } = req.body;
     
-    // 真实使用安全检查：仅限 .ac.nz 邮箱
+    // 严格邮箱验证
     if (!email.toLowerCase().endsWith('.ac.nz')) {
-        return res.status(400).json({ success: false, message: "Valid NZ student email required (.ac.nz)" });
+        return res.status(400).json({ success: false, message: "Only .ac.nz university emails are permitted." });
     }
 
     try {
         const hashed = await bcrypt.hash(password, 10);
-        await pool.query(
-            `INSERT INTO users (student_id, school_name, first_name, given_name, anonymous_name, email, password) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [student_id, school_name, first_name, given_name, anonymous_name, email, hashed]
-        );
+        const sql = `
+            INSERT INTO users (student_id, school_name, first_name, given_name, anonymous_name, phone, email, password) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `;
+        await pool.query(sql, [student_id, school_name, first_name, given_name, anonymous_name, phone, email, hashed]);
         res.json({ success: true });
     } catch (err) {
-        res.status(400).json({ success: false, message: "Registration failed. ID or Email already exists." });
+        console.error(err);
+        res.status(400).json({ success: false, message: "ID or Email already registered." });
     }
 });
 
@@ -116,41 +117,41 @@ app.post('/api/auth/login', async (req, res) => {
         const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
         const user = result.rows[0];
         if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-            return res.status(401).json({ success: false, message: "Invalid ID or password." });
+            return res.status(401).json({ success: false, message: "Invalid credentials." });
         }
         delete user.password; 
         res.json({ success: true, user });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// 创建任务 (支持图片上传)
+// 创建任务
 app.post('/api/task/create', upload.single('task_image'), async (req, res) => {
     const { publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator, load_weight } = req.body;
     const imgUrl = req.file ? req.file.path : '';
     try {
-        await pool.query(
-            `INSERT INTO tasks (publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator, load_weight, img_url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-            [publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator === 'true', load_weight, imgUrl]
-        );
+        const sql = `
+            INSERT INTO tasks (publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator, load_weight, img_url) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `;
+        await pool.query(sql, [publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator === 'true', load_weight, imgUrl]);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// 获取所有待处理任务 (Marketplace)
+// 获取大厅任务
 app.get('/api/task/all', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT t.*, u.anonymous_name as pub_name, u.rating_avg 
             FROM tasks t 
             JOIN users u ON t.publisher_id = u.student_id 
-            WHERE t.status = 'pending' 
-            ORDER BY t.id DESC
+            WHERE t.status = 'pending' ORDER BY t.id DESC
         `);
         res.json({ success: true, list: result.rows });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// 工作流：接受、完成任务
+// 工作流更新
 app.post('/api/task/workflow', async (req, res) => {
     const { task_id, status, helper_id } = req.body;
     try {
@@ -163,29 +164,29 @@ app.post('/api/task/workflow', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// 评价系统：提交评价并自动更新用户平均分
+// 评价与分数更新 (事务处理)
 app.post('/api/task/review', async (req, res) => {
     const { task_id, to_id, score, comment } = req.body;
+    const client = await pool.connect();
     try {
-        await pool.query('BEGIN');
-        // 1. 插入评价
-        await pool.query(`INSERT INTO reviews (task_id, to_id, score, comment) VALUES ($1, $2, $3, $4)`, [task_id, to_id, score, comment]);
-        // 2. 更新任务状态为 'reviewed' 防止重复评价
-        await pool.query(`UPDATE tasks SET status = 'reviewed' WHERE id = $1`, [task_id]);
-        // 3. 重新计算该 Helper 的平均分和任务总数
-        const stats = await pool.query(`SELECT AVG(score) as avg, COUNT(id) as count FROM reviews WHERE to_id = $1`, [to_id]);
-        await pool.query(`UPDATE users SET rating_avg = $1, task_count = $2 WHERE student_id = $3`, 
+        await client.query('BEGIN');
+        await client.query(`INSERT INTO reviews (task_id, to_id, score, comment) VALUES ($1, $2, $3, $4)`, [task_id, to_id, score, comment]);
+        await client.query(`UPDATE tasks SET status = 'reviewed' WHERE id = $1`, [task_id]);
+        
+        const stats = await client.query(`SELECT AVG(score) as avg, COUNT(id) as count FROM reviews WHERE to_id = $1`, [to_id]);
+        await client.query(`UPDATE users SET rating_avg = $1, task_count = $2 WHERE student_id = $3`, 
             [parseFloat(stats.rows[0].avg).toFixed(1), stats.rows[0].count, to_id]);
         
-        await pool.query('COMMIT');
+        await client.query('COMMIT');
         res.json({ success: true });
     } catch (err) {
-        await pool.query('ROLLBACK');
+        await client.query('ROLLBACK');
         res.status(500).json({ success: false });
+    } finally {
+        client.release();
     }
 });
 
-// 获取个人资料
 app.post('/api/user/profile', async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
@@ -193,7 +194,6 @@ app.post('/api/user/profile', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// 获取用户相关的任务看板数据
 app.post('/api/user/dashboard', async (req, res) => {
     try {
         const result = await pool.query(
@@ -204,13 +204,4 @@ app.post('/api/user/dashboard', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`
-    ---------------------------------------------------
-    🚀 DormLift V8.0 Final Engine Active
-    📍 Port: ${PORT}
-    🌐 Mode: PostgreSQL Production
-    📸 Cloudinary: Integrated
-    ---------------------------------------------------
-    `);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 DormLift PRO V8.0 Active on port ${PORT}`));
