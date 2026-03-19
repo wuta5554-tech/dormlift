@@ -7,12 +7,11 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// --- 1. Cloudinary Setup (For Task Images) ---
+// --- 1. Cloudinary Configuration (Using your 3 specific keys) ---
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
   api_key: process.env.CLOUDINARY_KEY, 
@@ -22,25 +21,24 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'dormlift_v8_nz',
+    folder: 'dormlift_nz_uploads',
     allowed_formats: ['jpg', 'png', 'jpeg'],
   },
 });
 const upload = multer({ storage: storage });
 
-// --- 2. SMTP Setup (For Real Gmail Verification) ---
+// --- 2. SMTP Setup (Real Gmail Verification) ---
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_EMAIL,    // From Railway Variables
-    pass: process.env.SMTP_PASSWORD // From Railway Variables (App Password)
+    user: process.env.SMTP_EMAIL,    // Your Gmail
+    pass: process.env.SMTP_PASSWORD // Your 16-digit App Password
   }
 });
 
-// Temporary in-memory store for verification codes
 const verificationCodes = new Map();
 
-// --- 3. PostgreSQL Connection ---
+// --- 3. PostgreSQL Connection (Railway Production) ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false } 
@@ -61,11 +59,8 @@ const initDB = async () => {
         load_weight TEXT, img_url TEXT, status TEXT DEFAULT 'pending', 
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      CREATE TABLE IF NOT EXISTS reviews (
-        id SERIAL PRIMARY KEY, task_id INTEGER, from_id TEXT, to_id TEXT, score INTEGER, comment TEXT
-      );
     `);
-    console.log("✅ Database tables initialized for NZ production.");
+    console.log("✅ Database synced for NZ Production.");
   } catch (err) { console.error("❌ DB Init Error:", err); }
 };
 initDB();
@@ -76,43 +71,36 @@ app.use(express.static(__dirname));
 
 // --- 4. Authentication API ---
 
-// SEND REAL VERIFICATION CODE
 app.post('/api/auth/send-code', async (req, res) => {
     const { email } = req.body;
     if (!email.toLowerCase().endsWith('.ac.nz')) {
-        return res.status(400).json({ success: false, message: "Only .ac.nz emails are allowed." });
+        return res.status(400).json({ success: false, message: "Valid .ac.nz email required." });
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    verificationCodes.set(email, { code, expires: Date.now() + 600000 }); // 10 mins expiry
+    verificationCodes.set(email, { code, expires: Date.now() + 600000 });
 
     try {
         await transporter.sendMail({
             from: `"DormLift NZ" <${process.env.SMTP_EMAIL}>`,
             to: email,
-            subject: 'DormLift | Your Verification Code',
-            html: `
-                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #3498db; border-radius: 12px;">
-                    <h2 style="color: #3498db;">Verify Your Account</h2>
-                    <p>Kia Ora! Use this code to join the student moving community:</p>
-                    <div style="font-size: 32px; font-weight: bold; color: #2c3e50; padding: 20px; background: #f4f7f9; text-align: center;">
-                        ${code}
-                    </div>
-                </div>`
+            subject: 'DormLift | Verification Code',
+            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #3498db;border-radius:12px;">
+                    <h2>Verify Your Account</h2>
+                    <p>Kia Ora! Your code is:</p>
+                    <h1 style="color:#3498db;letter-spacing:5px;">${code}</h1>
+                   </div>`
         });
-        res.json({ success: true, message: "Code sent!" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Email service failed." });
-    }
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false, message: "Mail service error." }); }
 });
 
-// REGISTER WITH CODE VERIFICATION
 app.post('/api/auth/register', async (req, res) => {
     const { student_id, email, password, code, first_name, given_name, anonymous_name, phone } = req.body;
-    
     const record = verificationCodes.get(email);
+    
     if (!record || record.code !== code || Date.now() > record.expires) {
-        return res.status(400).json({ success: false, message: "Invalid or expired code." });
+        return res.status(400).json({ success: false, message: "Invalid/Expired code." });
     }
 
     try {
@@ -124,12 +112,9 @@ app.post('/api/auth/register', async (req, res) => {
         );
         verificationCodes.delete(email);
         res.json({ success: true });
-    } catch (err) {
-        res.status(400).json({ success: false, message: "User ID already exists." });
-    }
+    } catch (err) { res.status(400).json({ success: false, message: "ID already exists." }); }
 });
 
-// LOGIN
 app.post('/api/auth/login', async (req, res) => {
     const result = await pool.query(`SELECT * FROM users WHERE student_id = $1`, [req.body.student_id]);
     const user = result.rows[0];
@@ -140,16 +125,18 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ success: true, user });
 });
 
-// --- 5. Task & Workflow API ---
+// --- 5. Task API ---
 
 app.post('/api/task/create', upload.single('task_image'), async (req, res) => {
-    const { publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator, load_weight } = req.body;
+    const { publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward } = req.body;
     const imgUrl = req.file ? req.file.path : '';
-    await pool.query(
-        `INSERT INTO tasks (publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator, load_weight, img_url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, has_elevator === 'true', load_weight, imgUrl]
-    );
-    res.json({ success: true });
+    try {
+        await pool.query(
+            `INSERT INTO tasks (publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, img_url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+            [publisher_id, move_date, move_time, from_addr, to_addr, items_desc, reward, imgUrl]
+        );
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
 app.get('/api/task/all', async (req, res) => {
